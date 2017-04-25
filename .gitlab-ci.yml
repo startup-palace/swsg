@@ -16,6 +16,8 @@ compile:
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
+      - project/project/
+      - project/target/
       - target/
     expire_in: 1 day
   tags:
