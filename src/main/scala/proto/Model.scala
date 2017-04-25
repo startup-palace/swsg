@@ -6,13 +6,13 @@ final case class Model(entities: Set[Entity],
                        components: Set[Component],
                        services: Seq[Service])
 
-object Model {
+final case object Model {
   type Identifier = String
   type Method     = String
   type Url        = String
 
   sealed abstract trait Type
-  final case class String()   extends Type
+  final case class Str()      extends Type
   final case class Boolean()  extends Type
   final case class Integer()  extends Type
   final case class Float()    extends Type
