@@ -20,3 +20,15 @@ compile:
     expire_in: 1 day
   tags:
     - docker
+
+unit:
+  stage: test
+  before_script:
+    - mkdir -p ~/.sbt/0.13/plugins
+    - echo "addSbtPlugin(\"io.get-coursier\" % \"sbt-coursier\" % \"$COURSIER_VERSION\")" >> ~/.sbt/0.13/plugins/coursier.sbt
+  script:
+    - java -version
+    - javac -version
+    - ./sbt test
+  tags:
+    - docker

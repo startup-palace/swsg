@@ -12,12 +12,12 @@ final case object Model {
   type Url        = String
 
   sealed abstract trait Type
-  final case class Str()      extends Type
-  final case class Boolean()  extends Type
-  final case class Integer()  extends Type
-  final case class Float()    extends Type
-  final case class Date()     extends Type
-  final case class DateTime() extends Type
+  final case object Str      extends Type
+  final case object Boolean  extends Type
+  final case object Integer  extends Type
+  final case object Float    extends Type
+  final case object Date     extends Type
+  final case object DateTime extends Type
 
   final case class Entity(name: Identifier, attributes: Set[Variable])
       extends Type
