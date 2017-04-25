@@ -19,7 +19,9 @@ final case object ConsistencyVerification extends AutoVerification {
 
   val levels = Seq(
     Set(
-      ComponentNameUnicity
+      ComponentNameUnicity,
+      EntityNameUnicity,
+      AttributeNameUnicity
     )
   )
 }
