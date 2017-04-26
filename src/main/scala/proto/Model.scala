@@ -47,5 +47,7 @@ final case object Model {
   final case class Service(method: Method,
                            url: Url,
                            params: Set[Variable],
-                           component: ComponentInstance)
+                           component: ComponentInstance) {
+    lazy val name: String = s"${method} ${url}"
+  }
 }
