@@ -29,7 +29,30 @@ class ReferenceConsistencySpec extends FlatSpec with Matchers {
                            "c2",
                            Reference.Component,
                            "c3"),
-      BrokenReferenceError(Reference.Service, "GET \\/", Reference.Component, "c4")
+      BrokenReferenceError(Reference.Service,
+                           "GET \\/",
+                           Reference.Component,
+                           "c4")
+    )
+    val errors = ConsistencyVerification.run(m)
+
+    errors should contain theSameElementsAs expectedErrors
+  }
+
+  it should "fail if an entity reference is incorrect" in {
+    val m = Model(
+      Set(
+        Entity("e1", Set(Variable("a1", Integer))),
+        Entity("e2",
+               Set(Variable("a1", Integer), Variable("a2", EntityRef("e1")))),
+        Entity("e3",
+               Set(Variable("a1", Integer), Variable("a2", EntityRef("e4"))))
+      ),
+      Set.empty,
+      Seq.empty
+    )
+    val expectedErrors = Set(
+      BrokenReferenceError(Reference.Entity, "e3", Reference.Entity, "e4")
     )
     val errors = ConsistencyVerification.run(m)
 

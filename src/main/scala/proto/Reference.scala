@@ -1,6 +1,6 @@
 package proto
 
-import Model.{Component, ComponentRef}
+import Model.{Component, ComponentRef, Entity, EntityRef}
 
 final case object Reference {
   sealed abstract trait Source
@@ -12,5 +12,8 @@ final case object Reference {
 
   def resolve(ref: ComponentRef,
               components: Set[Component]): Option[Component] =
+    components.find(_.name == ref.target)
+
+  def resolve(ref: EntityRef, components: Set[Entity]): Option[Entity] =
     components.find(_.name == ref.target)
 }

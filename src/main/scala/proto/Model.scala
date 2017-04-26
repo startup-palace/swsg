@@ -12,15 +12,15 @@ final case object Model {
   type Url        = String
 
   sealed abstract trait Type
-  final case object Str      extends Type
-  final case object Boolean  extends Type
-  final case object Integer  extends Type
-  final case object Float    extends Type
-  final case object Date     extends Type
-  final case object DateTime extends Type
+  final case object Str                          extends Type
+  final case object Boolean                      extends Type
+  final case object Integer                      extends Type
+  final case object Float                        extends Type
+  final case object Date                         extends Type
+  final case object DateTime                     extends Type
+  final case class EntityRef(target: Identifier) extends Type
 
   final case class Entity(name: Identifier, attributes: Set[Variable])
-      extends Type
 
   sealed abstract trait Component {
     def name: Identifier
