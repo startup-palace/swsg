@@ -36,9 +36,11 @@ final case object Model {
                                       params: Set[Variable],
                                       components: Seq[ComponentInstance])
       extends Component
-  final case class ComponentInstance(component: Component,
+  final case class ComponentInstance(component: ComponentRef,
                                      bindings: Set[Binding])
   final case class Binding(param: Variable, argument: Term)
+
+  final case class ComponentRef(target: Identifier) extends AnyVal
 
   sealed abstract trait Term
   final case class Variable(name: Identifier, `type`: Type) extends Term

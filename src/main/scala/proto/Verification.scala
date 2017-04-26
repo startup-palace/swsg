@@ -21,7 +21,8 @@ final case object ConsistencyVerification extends AutoVerification {
     Set(
       ComponentNameUnicity,
       EntityNameUnicity,
-      AttributeNameUnicity
+      AttributeNameUnicity,
+      ReferenceConsistency
     )
   )
 }
