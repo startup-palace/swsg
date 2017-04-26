@@ -34,7 +34,7 @@ final case object Model {
       extends Component
   final case class CompositeComponent(name: Identifier,
                                       params: Set[Variable],
-                                      components: List[ComponentInstance])
+                                      components: Seq[ComponentInstance])
       extends Component
   final case class ComponentInstance(component: Component,
                                      bindings: Set[Binding])
