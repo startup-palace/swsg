@@ -15,7 +15,7 @@ final case object ComponentRefConsistency extends Verification {
     val compositeComponents = model.components.collect {
       case c @ CompositeComponent(_, _, _) => c
     }
-    val references: Seq[(Reference.Source, String, ComponentRef)] =
+    val references: Seq[(Reference.Source, Identifier, ComponentRef)] =
       compositeComponents.toSeq.flatMap { cc =>
         cc.components.map(ci =>
           (Reference.CompositeComponent, cc.name, ci.component))
@@ -23,7 +23,7 @@ final case object ComponentRefConsistency extends Verification {
         Seq((Reference.Service, s.name, s.component.component))
       }
     val checkedReferences
-      : Seq[((Reference.Source, String, ComponentRef), Boolean)] =
+      : Seq[((Reference.Source, Identifier, ComponentRef), Boolean)] =
       references.map { r =>
         (r, Reference.resolve(r._3, model.components).isDefined)
       }
