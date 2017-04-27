@@ -26,11 +26,11 @@ final case object Model {
     def name: Identifier
     def params: Set[Variable]
   }
-  final case class AbstractComponent(name: Identifier,
-                                     params: Set[Variable],
-                                     pre: Set[Variable],
-                                     add: Set[Variable],
-                                     rem: Set[Variable])
+  final case class AtomicComponent(name: Identifier,
+                                   params: Set[Variable],
+                                   pre: Set[Variable],
+                                   add: Set[Variable],
+                                   rem: Set[Variable])
       extends Component
   final case class CompositeComponent(name: Identifier,
                                       params: Set[Variable],

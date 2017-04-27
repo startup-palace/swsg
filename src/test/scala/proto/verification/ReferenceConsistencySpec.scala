@@ -7,7 +7,7 @@ class ReferenceConsistencySpec extends FlatSpec with Matchers {
     val m = Model(
       Set.empty,
       Set(
-        AbstractComponent("c1", Set.empty, Set.empty, Set.empty, Set.empty),
+        AtomicComponent("c1", Set.empty, Set.empty, Set.empty, Set.empty),
         CompositeComponent(
           "c2",
           Set.empty,
