@@ -21,3 +21,9 @@ final case class BrokenReferenceError(
     targetType: Reference.Target,
     targetName: Identifier
 ) extends ModelError
+
+final case class RecursiveReferenceError(
+    path: Seq[(Reference.Source, Identifier)],
+    targetType: Reference.Target,
+    targetName: Identifier)
+    extends ModelError

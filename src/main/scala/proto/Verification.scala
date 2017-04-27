@@ -23,6 +23,9 @@ final case object ConsistencyVerification extends AutoVerification {
       EntityNameUnicity,
       AttributeNameUnicity,
       ReferenceConsistency
+    ),
+    Set(
+      RecursiveReferenceConsistency
     )
   )
 }
