@@ -26,7 +26,11 @@ final case object ConsistencyVerification extends AutoVerification {
     ),
     Set(
       RecursiveReferenceConsistency,
-      ComponentContextImmutability
+      ComponentContextVariableNameUnicity
+    ),
+    Set(
+      ComponentContextImmutability,
+      ComponentPreconditionExhaustivity
     )
   )
 }

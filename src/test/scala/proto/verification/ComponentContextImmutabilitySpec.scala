@@ -16,18 +16,12 @@ class ComponentContextImmutabilitySpec extends FlatSpec with Matchers {
                         Set.empty,
                         Set(Variable("v1", Str)),
                         Set(Variable("v1", Str)),
-                        Set.empty),
-        AtomicComponent("c3",
-                        Set.empty,
-                        Set(Variable("v1", Str)),
-                        Set(Variable("v1", Integer)),
                         Set.empty)
       ),
       Seq.empty
     )
     val expectedErrors = Set(
-      VariableOverrideError("c2", "v1"),
-      VariableOverrideError("c3", "v1")
+      VariableOverrideError("c2", "v1")
     )
     val errors = ConsistencyVerification.run(m)
 

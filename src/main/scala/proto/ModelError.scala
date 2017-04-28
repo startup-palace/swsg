@@ -1,6 +1,6 @@
 package proto
 
-import Model.Identifier
+import Model.{Identifier, Variable}
 
 sealed abstract trait ModelError
 
@@ -28,6 +28,16 @@ final case class RecursiveReferenceError(
     targetName: Identifier)
     extends ModelError
 
+final case class ComponentContextVariableNameUnicityError(
+    componentName: Identifier,
+    variableName: Identifier,
+    occurences: Int)
+    extends ModelError
+
 final case class VariableOverrideError(componentName: Identifier,
                                        variableName: Identifier)
+    extends ModelError
+
+final case class VariableMissingInPreconditionsError(componentName: Identifier,
+                                                     variable: Variable)
     extends ModelError
