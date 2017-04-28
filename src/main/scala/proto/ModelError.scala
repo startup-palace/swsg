@@ -27,3 +27,7 @@ final case class RecursiveReferenceError(
     targetType: Reference.Target,
     targetName: Identifier)
     extends ModelError
+
+final case class VariableOverrideError(componentName: Identifier,
+                                       variableName: Identifier)
+    extends ModelError
