@@ -5,7 +5,7 @@ import proto.Model._
 
 final case object AttributeNameUnicity extends Verification {
   def run(model: Model): Seq[AttributeNameUnicityError] = {
-    model.entities.toSeq.map(checkEntity).fold(Seq.empty)(_ ++ _)
+    model.entities.toSeq.flatMap(checkEntity)
   }
 
   private def checkEntity(entity: Entity): Seq[AttributeNameUnicityError] = {

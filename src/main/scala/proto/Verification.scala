@@ -9,7 +9,7 @@ abstract trait AutoVerification extends Verification {
 
   def run(model: Model): Seq[ModelError] =
     levels.foldLeft(Seq.empty[ModelError]) {
-      case (Seq(), cur) => cur.map(_.run(model)).fold(Seq.empty)(_ ++ _)
+      case (Seq(), cur) => cur.toSeq.flatMap(_.run(model))
       case (acc, _)     => acc
     }
 }
