@@ -30,7 +30,8 @@ final case object ConsistencyVerification extends AutoVerification {
     ),
     Set(
       ComponentContextImmutability,
-      ComponentPreconditionExhaustivity
+      ComponentPreconditionExhaustivity,
+      ComponentInstanceParametersExhaustivity
     )
   )
 }

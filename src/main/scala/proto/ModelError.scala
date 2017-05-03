@@ -41,3 +41,22 @@ final case class VariableOverrideError(componentName: Identifier,
 final case class VariableMissingInPreconditionsError(componentName: Identifier,
                                                      variable: Variable)
     extends ModelError
+
+final case class MissingArgumentError(instanceParentType: Reference.Source,
+                                      instanceParentName: Identifier,
+                                      component: Identifier,
+                                      parameter: Variable)
+    extends ModelError
+
+final case class UselessArgumentError(instanceParentType: Reference.Source,
+                                      instanceParentName: Identifier,
+                                      component: Identifier,
+                                      argument: Variable)
+    extends ModelError
+
+final case class NotInScopeArgumentError(instanceParentType: Reference.Source,
+                                         instanceParentName: Identifier,
+                                         component: Identifier,
+                                         argument: Variable,
+                                         variable: Variable)
+    extends ModelError
