@@ -1,6 +1,6 @@
 package proto
 
-import Model.{Identifier, Variable}
+import Model.{Identifier, Type, Variable}
 
 sealed abstract trait ModelError
 
@@ -59,4 +59,11 @@ final case class NotInScopeArgumentError(instanceParentType: Reference.Source,
                                          component: Identifier,
                                          argument: Variable,
                                          variable: Variable)
+    extends ModelError
+
+final case class IncorrectBindingError(instanceParentType: Reference.Source,
+                                       instanceParentName: Identifier,
+                                       component: Identifier,
+                                       expected: Variable,
+                                       found: Type)
     extends ModelError
