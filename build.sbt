@@ -13,8 +13,7 @@ lazy val root = (project in file(".")).settings(
     "-feature",
     "-Xfatal-warnings",
     "-Xfuture",
-    "-Xlint",
-    "-Xlint:-missing-interpolator"
+    "-Xlint"
   ),
   libraryDependencies += scalaTest % Test,
   commands += Command.args("scalafmt", "Run scalafmt cli.") {
