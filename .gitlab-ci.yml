@@ -1,6 +1,6 @@
 variables:
   DEBIAN_FRONTEND: noninteractive
-  COURSIER_VERSION: 1.0.0-RC1
+  COURSIER_VERSION: 1.0.0-RC2
 
 .scala-job: &scala
   image: hseeberger/scala-sbt
