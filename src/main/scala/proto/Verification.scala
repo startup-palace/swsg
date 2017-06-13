@@ -34,7 +34,8 @@ final case object ConsistencyVerification extends AutoVerification {
       ComponentInstanceBindingsConsistency
     ),
     Set(
-      ComponentInstanceParametersExhaustivity
+      ComponentInstanceParametersExhaustivity,
+      ContextValidity
     )
   )
 }

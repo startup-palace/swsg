@@ -67,3 +67,8 @@ final case class IncorrectBindingError(instanceParentType: Reference.Source,
                                        expected: Variable,
                                        found: Type)
     extends ModelError
+
+final case class ComponentPreconditionError(serviceName: String,
+                                            componentStack: Seq[Identifier],
+                                            notFulfilled: Variable)
+    extends ModelError
