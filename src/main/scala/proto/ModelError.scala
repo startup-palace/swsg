@@ -34,6 +34,9 @@ final case class ComponentContextVariableNameUnicityError(
     occurences: Int)
     extends ModelError
 
+final case class EmptyCompositeComponentError(name: Identifier)
+    extends ModelError
+
 final case class VariableOverrideError(componentName: Identifier,
                                        variableName: Identifier)
     extends ModelError
