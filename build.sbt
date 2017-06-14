@@ -15,7 +15,10 @@ lazy val root = (project in file(".")).settings(
     "-Xfuture",
     "-Xlint"
   ),
-  libraryDependencies += scalaTest % Test,
+  libraryDependencies ++= Seq(
+    scalaTest       % Test,
+    "org.parboiled" %% "parboiled" % parboiled
+  ),
   commands += Command.args("scalafmt", "Run scalafmt cli.") {
     case (state, args) =>
       val Right(scalafmt) =
