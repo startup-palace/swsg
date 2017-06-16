@@ -16,8 +16,8 @@ lazy val root = (project in file(".")).settings(
     "-Xlint"
   ),
   libraryDependencies ++= Seq(
-    scalaTest       % Test,
-    "org.parboiled" %% "parboiled" % parboiled
+    scalaTest % Test,
+    parboiled
   ),
   commands += Command.args("scalafmt", "Run scalafmt cli.") {
     case (state, args) =>
