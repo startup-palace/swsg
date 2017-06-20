@@ -6,8 +6,13 @@ import scala.util.Success
 class ModelSpec extends FlatSpec with Matchers {
   "Model parser" should "work with a simple model" in {
     val input = """
-e Registration(name: String, email: String, date: DateTime)
-e CancelledRegistration(registration: Registration)
+e
+  name Registration
+  attributes (name: String, email: String, date: DateTime)
+e
+  name CancelledRegistration
+  attributes (registration: Registration)
+
 """
     val model = Model(
       Set(
