@@ -1,7 +1,6 @@
 import org.scalatest._
 import proto._
 import proto.Model._
-import scala.util.Success
 
 class ModelSpec extends FlatSpec with Matchers {
   "Model parser" should "work with a simple model" in {
@@ -13,6 +12,17 @@ e
   name CancelledRegistration
   attributes (registration: Registration)
 
+s
+  method POST
+  url \/register\/(?<name>[^/]+)\/(?<email>[^/]+)
+  params (name: String, email: String)
+  ci Register
+
+s
+  method GET
+  url \/attendees\/(?<key>[^/]+)
+  params (key: String)
+  ci GetAttendees(apiKey: String = "myKey")
 """
     val model = Model(
       Set(
@@ -24,10 +34,25 @@ e
                Set(Variable("registration", EntityRef("Registration"))))
       ),
       Set.empty,
-      Seq.empty
+      Seq(
+        Service(
+          "POST",
+          "\\/register\\/(?<name>[^/]+)\\/(?<email>[^/]+)",
+          Set(Variable("name", Str), Variable("email", Str)),
+          ComponentInstance(ComponentRef("Register"), Set.empty)
+        ),
+        Service(
+          "GET",
+          "\\/attendees\\/(?<key>[^/]+)",
+          Set(Variable("key", Str)),
+          ComponentInstance(
+            ComponentRef("GetAttendees"),
+            Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))))
+        )
+      )
     )
-    val parsedModel = ModelParser(input).ModelFile.run()
-    parsedModel shouldBe a[Success[_]]
-    parsedModel.get shouldBe model
+    val parsedModel = ModelParser(input).parse
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
   }
 }

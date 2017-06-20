@@ -4,7 +4,11 @@ import org.parboiled2._
 import Parser.DeliveryScheme.Either
 
 case class ModelParser(input: ParserInput) extends Parser {
-  def parse = ModelFile.run().left.map(e => formatError(e))
+  def parse =
+    ModelFile
+      .run()
+      .left
+      .map(e => formatError(e, new ErrorFormatter(showTraces = true)))
 
   // Model
   def ModelFile = rule {
@@ -24,7 +28,7 @@ case class ModelParser(input: ParserInput) extends Parser {
       Model(entities.toSet, components.toSet, services)
     }
   }
-  def Declaration = rule { Entity }
+  def Declaration = rule { Entity | Service }
   def Identifier: Rule1[Model.Identifier] = rule {
     capture(
       CharPredicate.UpperAlpha ~ zeroOrMore(
@@ -38,18 +42,36 @@ case class ModelParser(input: ParserInput) extends Parser {
   def Name: Rule1[String] = rule {
     LineSeparator ~ Indentation ~ "name" ~ WhitespaceSeparator ~ Identifier
   }
-  def Attributes = rule {
+  def Attributes: Rule1[Seq[Model.Variable]] = rule {
     LineSeparator ~ Indentation ~ "attributes" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
-      Attribute).separatedBy(ParameterSeparator) ~ ')'
+      Variable).separatedBy(ParameterSeparator) ~ ')'
   }
-  def Attribute: Rule1[Model.Variable] = rule {
-    (AttributeName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
-      WhitespaceSeparator) ~ Type) ~> ((n, t) => Model.Variable(n, t))
+
+  // Service
+  def Service = rule {
+    's' ~ Method ~ Url ~ Params ~ Ci ~> ((m,
+                                          u,
+                                          p,
+                                          c) =>
+                                           Model.Service(m, u, p.toSet, c))
   }
-  def AttributeName: Rule1[String] = rule {
-    capture(
-      CharPredicate.LowerAlpha ~ zeroOrMore(
-        CharPredicate.Alpha | CharPredicate.Digit))
+  def Method: Rule1[String] = rule {
+    LineSeparator ~ Indentation ~ "method" ~ WhitespaceSeparator ~ capture(
+      oneOrMore(CharPredicate.UpperAlpha))
+  }
+  def Url: Rule1[String] = rule {
+    LineSeparator ~ Indentation ~ "url" ~ WhitespaceSeparator ~ capture(
+      oneOrMore(CharPredicate.All -- '\n'))
+  }
+  def Params: Rule1[Seq[Model.Variable]] = rule {
+    LineSeparator ~ Indentation ~ "params" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+      Variable).separatedBy(ParameterSeparator) ~ ')'
+  }
+  def Ci: Rule1[Model.ComponentInstance] = rule {
+    LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings) ~> (
+        (n: String,
+         bs: Seq[Model.Binding]) =>
+          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet))
   }
 
   // Type
@@ -67,6 +89,32 @@ case class ModelParser(input: ParserInput) extends Parser {
     "Date"     -> Model.Date,
     "DateTime" -> Model.DateTime
   )
+  def Variable: Rule1[Model.Variable] = rule {
+    (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
+      WhitespaceSeparator) ~ Type) ~> ((n, t) => Model.Variable(n, t))
+  }
+  def VariableName: Rule1[String] = rule {
+    capture(
+      CharPredicate.LowerAlpha ~ zeroOrMore(
+        CharPredicate.Alpha | CharPredicate.Digit))
+  }
+  def Binding: Rule1[Model.Binding] = rule {
+    (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
+      WhitespaceSeparator) ~ Type ~ optional(WhitespaceSeparator) ~ '=' ~ optional(
+      WhitespaceSeparator) ~ Term) ~> (
+        (n: String,
+         t: Model.Type,
+         v: Model.Term) => Model.Binding(Model.Variable(n, t), v))
+  }
+  def Bindings: Rule1[Seq[Model.Binding]] = rule {
+    optional('(' ~ oneOrMore(Binding).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (bs: Option[Seq[Model.Binding]]) => bs.getOrElse(Seq.empty))
+  }
+  def Term: Rule1[Model.Term] = rule { StrConstant }
+  def StrConstant: Rule1[Model.Constant] = rule {
+    ('"' ~ capture(zeroOrMore("\\\"" | (CharPredicate.All -- '"'))) ~ '"') ~> (
+        (v: String) => Model.Constant(Model.Str, v))
+  }
 
   // Utils
   def WhitespaceSeparator = rule { oneOrMore(' ') }
