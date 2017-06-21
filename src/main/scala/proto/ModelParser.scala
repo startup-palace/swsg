@@ -28,7 +28,9 @@ case class ModelParser(input: ParserInput) extends Parser {
       Model(entities.toSet, components.toSet, services)
     }
   }
-  def Declaration = rule { Entity | Service | AtomicComponent }
+  def Declaration = rule {
+    Entity | Service | AtomicComponent | CompositeComponent
+  }
   def Identifier: Rule1[Model.Identifier] = rule {
     capture(
       CharPredicate.UpperAlpha ~ zeroOrMore(
@@ -78,11 +80,13 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Atomic component
   def AtomicComponent = rule {
-    "ac" ~ Name ~ Params ~ Pre ~ Add ~ Rem ~> ((n,
-                                          p,
-                                          pre,
-                                          add, rem) =>
-                                           Model.AtomicComponent(n, p.toSet, pre.toSet, add.toSet, rem.toSet))
+    "ac" ~ Name ~ Params ~ Pre ~ Add ~ Rem ~> (
+        (n,
+         p,
+         pre,
+         add,
+         rem) =>
+          Model.AtomicComponent(n, p.toSet, pre.toSet, add.toSet, rem.toSet))
   }
   def Pre: Rule1[Seq[Model.Variable]] = rule {
     optional(
@@ -101,6 +105,17 @@ case class ModelParser(input: ParserInput) extends Parser {
       LineSeparator ~ Indentation ~ "rem" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
         Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
         (vs: Option[Seq[Model.Variable]]) => vs.getOrElse(Seq.empty))
+  }
+
+  // Composite component
+  def CompositeComponent = rule {
+    "cc" ~ Name ~ Params ~ Cis ~> ((n,
+                                    p,
+                                    cis) =>
+                                     Model.CompositeComponent(n, p.toSet, cis))
+  }
+  def Cis = rule {
+    zeroOrMore(Ci)
   }
 
   // Type
@@ -130,19 +145,31 @@ case class ModelParser(input: ParserInput) extends Parser {
   def Binding: Rule1[Model.Binding] = rule {
     (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
       WhitespaceSeparator) ~ Type ~ optional(WhitespaceSeparator) ~ '=' ~ optional(
-      WhitespaceSeparator) ~ Term) ~> (
-        (n: String,
-         t: Model.Type,
-         v: Model.Term) => Model.Binding(Model.Variable(n, t), v))
+      WhitespaceSeparator) ~ Term) ~> ((n: String,
+                                        t: Model.Type,
+                                        v: Model.Term) =>
+                                         v match {
+                                           case v: Model.Constant =>
+                                             Model.Binding(
+                                               Model.Variable(n, t),
+                                               v)
+                                           case Model.Variable(v, _) =>
+                                             Model.Binding(
+                                               Model.Variable(n, t),
+                                               Model.Variable(v, t))
+                                         })
   }
   def Bindings: Rule1[Seq[Model.Binding]] = rule {
     optional('(' ~ oneOrMore(Binding).separatedBy(ParameterSeparator) ~ ')') ~> (
         (bs: Option[Seq[Model.Binding]]) => bs.getOrElse(Seq.empty))
   }
-  def Term: Rule1[Model.Term] = rule { StrConstant }
+  def Term: Rule1[Model.Term] = rule { StrConstant | TermVariable }
   def StrConstant: Rule1[Model.Constant] = rule {
     ('"' ~ capture(zeroOrMore("\\\"" | (CharPredicate.All -- '"'))) ~ '"') ~> (
         (v: String) => Model.Constant(Model.Str, v))
+  }
+  def TermVariable: Rule1[Model.Variable] = rule {
+    VariableName ~> ((v: String) => Model.Variable(v, Model.Str))
   }
 
   // Utils

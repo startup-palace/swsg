@@ -12,6 +12,20 @@ e
   name CancelledRegistration
   attributes (registration: Registration)
 
+cc
+  name Registration
+  ci ValidateEmail
+  ci CheckDupRegistration
+  ci CreateRegistration
+  ci SaveRegistration
+  ci RegistrationSerializer
+cc
+  name GetAttendees
+  params (apiKey: String)
+  ci CheckKey(correctKey: String = apiKey)
+  ci FetchRegistrations
+  ci RegistrationsSerializer
+
 s
   method GET
   url \/
@@ -67,6 +81,31 @@ ac
           Set(Variable("name", Str), Variable("email", Str)),
           Set(Variable("registration", EntityRef("Registration"))),
           Set.empty
+        ),
+        CompositeComponent(
+          "Registration",
+          Set.empty,
+          Seq(
+            ComponentInstance(ComponentRef("ValidateEmail"), Set.empty),
+            ComponentInstance(ComponentRef("CheckDupRegistration"), Set.empty),
+            ComponentInstance(ComponentRef("CreateRegistration"), Set.empty),
+            ComponentInstance(ComponentRef("SaveRegistration"), Set.empty),
+            ComponentInstance(ComponentRef("RegistrationSerializer"),
+                              Set.empty)
+          )
+        ),
+        CompositeComponent(
+          "GetAttendees",
+          Set(Variable("apiKey", Str)),
+          Seq(
+            ComponentInstance(
+              ComponentRef("CheckKey"),
+              Set(Binding(Variable("correctKey", Str),
+                          Variable("apiKey", Str)))),
+            ComponentInstance(ComponentRef("FetchRegistrations"), Set.empty),
+            ComponentInstance(ComponentRef("RegistrationsSerializer"),
+                              Set.empty)
+          )
         )
       ),
       Seq(
