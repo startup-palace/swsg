@@ -28,7 +28,7 @@ case class ModelParser(input: ParserInput) extends Parser {
       Model(entities.toSet, components.toSet, services)
     }
   }
-  def Declaration = rule { Entity | Service }
+  def Declaration = rule { Entity | Service | AtomicComponent }
   def Identifier: Rule1[Model.Identifier] = rule {
     capture(
       CharPredicate.UpperAlpha ~ zeroOrMore(
@@ -74,6 +74,33 @@ case class ModelParser(input: ParserInput) extends Parser {
         (n: String,
          bs: Seq[Model.Binding]) =>
           Model.ComponentInstance(Model.ComponentRef(n), bs.toSet))
+  }
+
+  // Atomic component
+  def AtomicComponent = rule {
+    "ac" ~ Name ~ Params ~ Pre ~ Add ~ Rem ~> ((n,
+                                          p,
+                                          pre,
+                                          add, rem) =>
+                                           Model.AtomicComponent(n, p.toSet, pre.toSet, add.toSet, rem.toSet))
+  }
+  def Pre: Rule1[Seq[Model.Variable]] = rule {
+    optional(
+      LineSeparator ~ Indentation ~ "pre" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (vs: Option[Seq[Model.Variable]]) => vs.getOrElse(Seq.empty))
+  }
+  def Add: Rule1[Seq[Model.Variable]] = rule {
+    optional(
+      LineSeparator ~ Indentation ~ "add" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (vs: Option[Seq[Model.Variable]]) => vs.getOrElse(Seq.empty))
+  }
+  def Rem: Rule1[Seq[Model.Variable]] = rule {
+    optional(
+      LineSeparator ~ Indentation ~ "rem" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (vs: Option[Seq[Model.Variable]]) => vs.getOrElse(Seq.empty))
   }
 
   // Type

@@ -27,6 +27,19 @@ s
   url \/attendees\/(?<key>[^/]+)
   params (key: String)
   ci GetAttendees(apiKey: String = "myKey")
+
+ac
+  name ValidateEmail
+  pre (email: String)
+ac
+  name CheckDupRegistration
+  pre (name: String, email: String)
+  rem (name: String)
+ac
+  name CreateRegistration
+  params (whatever: Integer)
+  pre (name: String, email: String)
+  add (registration: Registration)
 """
     val model = Model(
       Set(
@@ -37,7 +50,25 @@ s
         Entity("CancelledRegistration",
                Set(Variable("registration", EntityRef("Registration"))))
       ),
-      Set.empty,
+      Set(
+        AtomicComponent("ValidateEmail",
+                        Set.empty,
+                        Set(Variable("email", Str)),
+                        Set.empty,
+                        Set.empty),
+        AtomicComponent("CheckDupRegistration",
+                        Set.empty,
+                        Set(Variable("name", Str), Variable("email", Str)),
+                        Set.empty,
+                        Set(Variable("name", Str))),
+        AtomicComponent(
+          "CreateRegistration",
+          Set(Variable("whatever", Integer)),
+          Set(Variable("name", Str), Variable("email", Str)),
+          Set(Variable("registration", EntityRef("Registration"))),
+          Set.empty
+        )
+      ),
       Seq(
         Service(
           "GET",
