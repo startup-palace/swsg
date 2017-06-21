@@ -13,6 +13,10 @@ e
   attributes (registration: Registration)
 
 s
+  method GET
+  url \/
+  ci Home
+s
   method POST
   url \/register\/(?<name>[^/]+)\/(?<email>[^/]+)
   params (name: String, email: String)
@@ -35,6 +39,12 @@ s
       ),
       Set.empty,
       Seq(
+        Service(
+          "GET",
+          "\\/",
+          Set.empty,
+          ComponentInstance(ComponentRef("Home"), Set.empty)
+        ),
         Service(
           "POST",
           "\\/register\\/(?<name>[^/]+)\\/(?<email>[^/]+)",

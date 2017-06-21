@@ -64,8 +64,10 @@ case class ModelParser(input: ParserInput) extends Parser {
       oneOrMore(CharPredicate.All -- '\n'))
   }
   def Params: Rule1[Seq[Model.Variable]] = rule {
-    LineSeparator ~ Indentation ~ "params" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
-      Variable).separatedBy(ParameterSeparator) ~ ')'
+    optional(
+      LineSeparator ~ Indentation ~ "params" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (ps: Option[Seq[Model.Variable]]) => ps.getOrElse(Seq.empty))
   }
   def Ci: Rule1[Model.ComponentInstance] = rule {
     LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings) ~> (
