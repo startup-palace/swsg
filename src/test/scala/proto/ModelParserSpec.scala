@@ -98,10 +98,9 @@ ac
           "GetAttendees",
           Set(Variable("apiKey", Str)),
           Seq(
-            ComponentInstance(
-              ComponentRef("CheckKey"),
-              Set(Binding(Variable("correctKey", Str),
-                          Variable("apiKey", Str)))),
+            ComponentInstance(ComponentRef("CheckKey"),
+                              Set(Binding(Variable("correctKey", Str),
+                                          Variable("apiKey", Str)))),
             ComponentInstance(ComponentRef("FetchRegistrations"), Set.empty),
             ComponentInstance(ComponentRef("RegistrationsSerializer"),
                               Set.empty)
