@@ -37,6 +37,17 @@ final case class ComponentContextVariableNameUnicityError(
 final case class EmptyCompositeComponentError(name: Identifier)
     extends ModelError
 
+sealed abstract trait ContextElement
+object ContextElement {
+  final case object AtomicComponent extends ContextElement
+  final case object Service         extends ContextElement
+}
+
+final case class InheritedTypeInContext(elementType: ContextElement,
+                                        elementName: Identifier,
+                                        variableName: Identifier)
+    extends ModelError
+
 final case class VariableOverrideError(componentName: Identifier,
                                        variableName: Identifier)
     extends ModelError
