@@ -130,7 +130,7 @@ ac
         )
       )
     )
-    val parsedModel = ModelParser(input).parse
+    val parsedModel = ModelParser.parse(input)
     parsedModel shouldBe a[Right[_, _]]
     parsedModel.right.get shouldBe model
   }

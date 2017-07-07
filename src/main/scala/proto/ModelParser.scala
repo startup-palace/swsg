@@ -4,12 +4,6 @@ import org.parboiled2._
 import Parser.DeliveryScheme.Either
 
 case class ModelParser(input: ParserInput) extends Parser {
-  def parse =
-    ModelFile
-      .run()
-      .left
-      .map(e => formatError(e, new ErrorFormatter(showTraces = true)))
-
   // Model
   def ModelFile = rule {
     optional(LinesSeparator) ~ Declarations ~ optional(LinesSeparator) ~ EOI
@@ -178,4 +172,14 @@ case class ModelParser(input: ParserInput) extends Parser {
   def LinesSeparator      = rule { oneOrMore('\n') }
   def ParameterSeparator  = rule { zeroOrMore(' ') ~ ',' ~ zeroOrMore(' ') }
   def Indentation         = WhitespaceSeparator
+}
+
+object ModelParser {
+  def parse(input: String): Either[String, Model] = {
+    val parser = ModelParser(input)
+    parser.ModelFile
+      .run()
+      .left
+      .map(e => parser.formatError(e, new ErrorFormatter(showTraces = true)))
+  }
 }
