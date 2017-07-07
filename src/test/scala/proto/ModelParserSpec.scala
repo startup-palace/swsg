@@ -22,7 +22,7 @@ cc
 cc
   name GetAttendees
   params (apiKey: String)
-  ci CheckKey(correctKey: String = apiKey)
+  ci CheckKey(correctKey = apiKey)
   ci FetchRegistrations
   ci RegistrationsSerializer
 
@@ -40,7 +40,7 @@ s
   method GET
   url \/attendees\/(?<key>[^/]+)
   params (key: String)
-  ci GetAttendees(apiKey: String = "myKey")
+  ci GetAttendees(apiKey = "myKey")
 
 ac
   name ValidateEmail
@@ -54,6 +54,11 @@ ac
   params (whatever: Integer)
   pre (name: String, email: String)
   add (registration: Registration)
+
+ac
+  name CheckKey
+  params (correctKey: Str)
+  pre (key: String)
 """
     val model = Model(
       Set(
@@ -80,6 +85,13 @@ ac
           Set(Variable("whatever", Integer)),
           Set(Variable("name", Str), Variable("email", Str)),
           Set(Variable("registration", EntityRef("Registration"))),
+          Set.empty
+        ),
+        AtomicComponent(
+          "CheckKey",
+          Set(Variable("correctKey", Str)),
+          Set(Variable("key", Str)),
+          Set.empty,
           Set.empty
         ),
         CompositeComponent(

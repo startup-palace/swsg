@@ -137,17 +137,15 @@ case class ModelParser(input: ParserInput) extends Parser {
         CharPredicate.Alpha | CharPredicate.Digit))
   }
   def Binding: Rule1[Model.Binding] = rule {
-    (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
-      WhitespaceSeparator) ~ Type ~ optional(WhitespaceSeparator) ~ '=' ~ optional(
+    (VariableName ~ optional(WhitespaceSeparator) ~ '=' ~ optional(
       WhitespaceSeparator) ~ Term) ~> ((n: String,
-                                        t: Model.Type,
                                         v: Model.Term) =>
                                          v match {
                                            case v: Model.Constant =>
                                              Model.Binding(
-                                               Model.Variable(n, t),
+                                               Model.Variable(n, v.`type`),
                                                v)
-                                           case Model.Variable(v, _) =>
+                                           case Model.Variable(v, t) =>
                                              Model.Binding(
                                                Model.Variable(n, t),
                                                Model.Variable(v, t))
@@ -163,7 +161,7 @@ case class ModelParser(input: ParserInput) extends Parser {
         (v: String) => Model.Constant(Model.Str, v))
   }
   def TermVariable: Rule1[Model.Variable] = rule {
-    VariableName ~> ((v: String) => Model.Variable(v, Model.Str))
+    VariableName ~> ((v: String) => Model.Variable(v, Model.Inherited))
   }
 
   // Utils
@@ -179,7 +177,37 @@ object ModelParser {
     val parser = ModelParser(input)
     parser.ModelFile
       .run()
+      .map(resolveInheritedTypes)
       .left
       .map(e => parser.formatError(e, new ErrorFormatter(showTraces = true)))
+  }
+
+  private def resolveInheritedTypes(model: Model): Model = {
+    val newComponents = model.components.map {
+      case cc @ Model.CompositeComponent(_, p, c) => {
+        val newC = c.map { ci =>
+          val newBindings = ci.bindings.map {
+            case b @ Model.Binding(Model.Variable(paramName, Model.Inherited),
+                                   Model.Variable(termName,
+                                                  Model.Inherited)) => {
+              val binding = for {
+                paramType <- Reference
+                  .resolve(ci.component, model.components)
+                  .flatMap(_.params.find(_.name == paramName).map(_.`type`))
+                termType <- p.find(_.name == termName).map(_.`type`)
+              } yield
+                Model.Binding(Model.Variable(paramName, paramType),
+                              Model.Variable(termName, termType))
+              binding.getOrElse(b)
+            }
+            case b => b
+          }
+          ci.copy(bindings = newBindings)
+        }
+        cc.copy(components = newC)
+      }
+      case c => c
+    }
+    model.copy(components = newComponents)
   }
 }

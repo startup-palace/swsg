@@ -19,6 +19,7 @@ final case object Model {
   final case object Date                         extends Type
   final case object DateTime                     extends Type
   final case class EntityRef(target: Identifier) extends Type
+  final case object Inherited                    extends Type
 
   final case class Entity(name: Identifier, attributes: Set[Variable])
 
