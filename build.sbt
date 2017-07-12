@@ -19,11 +19,8 @@ lazy val root = (project in file(".")).settings(
     scalaTest % Test,
     parboiled
   ),
-  commands += Command.args("scalafmt", "Run scalafmt cli.") {
-    case (state, args) =>
-      val Right(scalafmt) =
-        org.scalafmt.bootstrap.ScalafmtBootstrap.fromVersion(latestScalafmt)
-      scalafmt.main("--non-interactive" +: args.toArray)
-      state
-  }
+  scalafmtVersion in ThisBuild := latestScalafmt,
+  scalafmtOnCompile in ThisBuild := true,
+  scalafmtTestOnCompile in ThisBuild := true,
+  ignoreErrors in (ThisBuild, scalafmt) := false
 )

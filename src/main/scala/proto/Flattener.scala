@@ -21,9 +21,9 @@ final case class Flattener(components: Set[Component]) {
   def flattenWithParents(c: Component): Seq[AtomicComponentWithParents] =
     flattenWithParents(c, Seq.empty)
 
-  def flattenWithParents(ci: ComponentInstance,
-                         parents: Seq[Identifier] = Seq.empty)
-    : Seq[AtomicComponentWithParents] = {
+  def flattenWithParents(
+      ci: ComponentInstance,
+      parents: Seq[Identifier] = Seq.empty): Seq[AtomicComponentWithParents] = {
     val c: Component = Reference.resolve(ci.component, components).get
     flattenWithParents(c, parents)
   }

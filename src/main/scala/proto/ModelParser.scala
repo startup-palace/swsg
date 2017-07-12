@@ -48,8 +48,7 @@ case class ModelParser(input: ParserInput) extends Parser {
     's' ~ Method ~ Url ~ Params ~ Ci ~> ((m,
                                           u,
                                           p,
-                                          c) =>
-                                           Model.Service(m, u, p.toSet, c))
+                                          c) => Model.Service(m, u, p.toSet, c))
   }
   def Method: Rule1[String] = rule {
     LineSeparator ~ Indentation ~ "method" ~ WhitespaceSeparator ~ capture(
@@ -146,9 +145,8 @@ case class ModelParser(input: ParserInput) extends Parser {
                                                Model.Variable(n, v.`type`),
                                                v)
                                            case Model.Variable(v, t) =>
-                                             Model.Binding(
-                                               Model.Variable(n, t),
-                                               Model.Variable(v, t))
+                                             Model.Binding(Model.Variable(n, t),
+                                                           Model.Variable(v, t))
                                          })
   }
   def Bindings: Rule1[Seq[Model.Binding]] = rule {
@@ -187,9 +185,9 @@ object ModelParser {
       case cc @ Model.CompositeComponent(_, p, c) => {
         val newC = c.map { ci =>
           val newBindings = ci.bindings.map {
-            case b @ Model.Binding(Model.Variable(paramName, Model.Inherited),
-                                   Model.Variable(termName,
-                                                  Model.Inherited)) => {
+            case b @ Model.Binding(
+                  Model.Variable(paramName, Model.Inherited),
+                  Model.Variable(termName, Model.Inherited)) => {
               val binding = for {
                 paramType <- Reference
                   .resolve(ci.component, model.components)

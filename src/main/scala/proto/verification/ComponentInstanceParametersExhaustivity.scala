@@ -3,8 +3,7 @@ package proto.verification
 import proto._
 import proto.Model._
 
-final case object ComponentInstanceParametersExhaustivity
-    extends Verification {
+final case object ComponentInstanceParametersExhaustivity extends Verification {
   def run(model: Model): Seq[ModelError] = {
     val compositeComponents = model.components.collect {
       case c @ CompositeComponent(_, _, _) => c
@@ -40,12 +39,10 @@ final case object ComponentInstanceParametersExhaustivity
 
     val missing: Seq[MissingArgumentError] = parameters
       .diff(arguments)
-      .map(p =>
-        MissingArgumentError(parentType, parentName, component.name, p))
+      .map(p => MissingArgumentError(parentType, parentName, component.name, p))
     val useless: Seq[UselessArgumentError] = arguments
       .diff(parameters)
-      .map(p =>
-        UselessArgumentError(parentType, parentName, component.name, p))
+      .map(p => UselessArgumentError(parentType, parentName, component.name, p))
     val notInScope: Seq[NotInScopeArgumentError] = bindings
       .flatMap {
         case Binding(a @ Variable(_, _), v @ Variable(_, _)) => {

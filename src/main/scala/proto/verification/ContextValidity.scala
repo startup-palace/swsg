@@ -45,11 +45,12 @@ final case object ContextValidity extends Verification {
       val inconsistencies =
         componentWithContext.component.pre
           .filterNot(componentWithContext.contextIn.contains)
-      inconsistencies.toSeq.map(i =>
-        ComponentPreconditionError(
-          service.name,
-          componentWithContext.parents :+ componentWithContext.component.name,
-          i))
+      inconsistencies.toSeq.map(
+        i =>
+          ComponentPreconditionError(
+            service.name,
+            componentWithContext.parents :+ componentWithContext.component.name,
+            i))
     }
   }
 

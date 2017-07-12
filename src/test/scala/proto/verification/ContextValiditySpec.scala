@@ -35,11 +35,11 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent(
-          "c3",
-          Set.empty,
-          Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-              ComponentInstance(ComponentRef("c2"), Set.empty)))
+        CompositeComponent("c3",
+                           Set.empty,
+                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
+                               ComponentInstance(ComponentRef("c2"),
+                                                 Set.empty)))
       ),
       Seq(
         Service("GET",
@@ -92,11 +92,11 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent(
-          "c3",
-          Set.empty,
-          Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-              ComponentInstance(ComponentRef("c2"), Set.empty)))
+        CompositeComponent("c3",
+                           Set.empty,
+                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
+                               ComponentInstance(ComponentRef("c2"),
+                                                 Set.empty)))
       ),
       Seq(
         Service("GET",

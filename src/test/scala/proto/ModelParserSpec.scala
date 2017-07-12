@@ -102,8 +102,7 @@ ac
             ComponentInstance(ComponentRef("CheckDupRegistration"), Set.empty),
             ComponentInstance(ComponentRef("CreateRegistration"), Set.empty),
             ComponentInstance(ComponentRef("SaveRegistration"), Set.empty),
-            ComponentInstance(ComponentRef("RegistrationSerializer"),
-                              Set.empty)
+            ComponentInstance(ComponentRef("RegistrationSerializer"), Set.empty)
           )
         ),
         CompositeComponent(
