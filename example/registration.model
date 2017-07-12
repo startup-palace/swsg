@@ -1,0 +1,55 @@
+e
+  name Registration
+  attributes (name: String, email: String, date: DateTime)
+
+s
+  method POST
+  url \/register\/(?<name>[^/]+)\/(?<email>[^/]+)
+  params (name: String, email: String)
+  ci Registration
+s
+  method GET
+  url \/attendees\/(?<key>[^/]+)
+  params (key: String)
+  ci GetAttendees(apiKey = "mykey")
+
+cc
+  name Registration
+  ci ValidateEmail
+  ci CheckDupRegistration
+  ci CreateRegistration
+  ci SaveRegistration
+  ci RegistrationSerializer
+cc
+  name GetAttendees
+  params (apiKey: String)
+  ci CheckKey(correctKey = apiKey)
+  ci FetchRegistrations
+  ci RegistrationsSerializer
+
+ac
+  name ValidateEmail
+  pre (email: String)
+ac
+  name CheckDupRegistration
+  pre (name: String, email: String)
+ac
+  name CreateRegistration
+  pre (name: String, email: String)
+  add (registration: Registration)
+ac
+  name SaveRegistration
+  pre (registration: Registration)
+ac
+  name RegistrationSerializer
+  pre (registration: Registration)
+ac
+  name CheckKey
+  params (correctKey: String)
+  pre (key: String)
+ac
+  name FetchRegistrations
+  add (registrations: AAA)
+ac
+  name RegistrationsSerializer
+  pre (registrations: AAA)

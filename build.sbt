@@ -17,7 +17,9 @@ lazy val root = (project in file(".")).settings(
   ),
   libraryDependencies ++= Seq(
     scalaTest % Test,
-    parboiled
+    parboiled,
+    betterFiles,
+    scopt
   ),
   scalafmtVersion in ThisBuild := latestScalafmt,
   scalafmtOnCompile in ThisBuild := true,
