@@ -32,3 +32,11 @@ unit:
     - ./sbt test
   tags:
     - docker
+
+check_example:
+  <<: *scala
+  stage: test
+  script:
+    - ./sbt "run -m example/registration.model"
+  tags:
+    - docker
