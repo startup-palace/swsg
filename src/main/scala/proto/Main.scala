@@ -68,7 +68,7 @@ final case object Main extends App {
               println(error)
               sys.exit(1)
             }
-            case _ => ()
+            case Right(output) => println(output)
           }
 
         }

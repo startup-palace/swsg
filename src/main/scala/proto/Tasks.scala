@@ -3,7 +3,7 @@ package proto
 import better.files._
 
 final case object Tasks {
-  def check(modelFile: String): Either[String, Unit] = {
+  def check(modelFile: String): Either[String, Model] = {
     val serializedModel: String = File(modelFile).contentAsString
 
     ModelParser.parse(serializedModel) match {
@@ -12,7 +12,7 @@ final case object Tasks {
         ConsistencyVerification.run(model) match {
           case Seq() => {
             println("Model OK")
-            Right(())
+            Right(model)
           }
           case Seq(e) => Left(e.toString)
         }
