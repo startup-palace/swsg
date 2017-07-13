@@ -48,11 +48,21 @@ class ReferenceConsistencySpec extends FlatSpec with Matchers {
         Entity("e3",
                Set(Variable("a1", Integer), Variable("a2", EntityRef("e4"))))
       ),
-      Set.empty,
+      Set(
+        AtomicComponent("c1",
+                        Set(Variable("p1", EntityRef("e5"))),
+                        Set(Variable("v1", EntityRef("e6"))),
+                        Set(Variable("v2", EntityRef("e7"))),
+                        Set(Variable("v3", EntityRef("e8"))))
+      ),
       Seq.empty
     )
     val expectedErrors = Set(
-      BrokenReferenceError(Reference.Entity, "e3", Reference.Entity, "e4")
+      BrokenReferenceError(Reference.Entity, "e3", Reference.Entity, "e4"),
+      BrokenReferenceError(Reference.Component, "c1", Reference.Entity, "e5"),
+      BrokenReferenceError(Reference.Component, "c1", Reference.Entity, "e6"),
+      BrokenReferenceError(Reference.Component, "c1", Reference.Entity, "e7"),
+      BrokenReferenceError(Reference.Component, "c1", Reference.Entity, "e8")
     )
     val errors = ConsistencyVerification.run(m)
 
