@@ -49,7 +49,7 @@ ac
   pre (key: String)
 ac
   name FetchRegistrations
-  add (registrations: AAA)
+  add (registrations: Seq(Registration))
 ac
   name RegistrationsSerializer
-  pre (registrations: AAA)
+  pre (registrations: Seq(Registration))

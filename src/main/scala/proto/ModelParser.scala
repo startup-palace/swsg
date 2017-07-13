@@ -113,7 +113,8 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Type
   def Type: Rule1[Model.Type] = rule {
-    Identifier ~> ((n: String) => validTypes.getOrElse(n, Model.EntityRef(n)))
+    SeqOf | (Identifier ~> ((n: String) =>
+      validTypes.getOrElse(n, Model.EntityRef(n))))
   }
   val validTypes: Map[String, Model.Type] = Map(
     "Str"      -> Model.Str,
@@ -126,6 +127,9 @@ case class ModelParser(input: ParserInput) extends Parser {
     "Date"     -> Model.Date,
     "DateTime" -> Model.DateTime
   )
+  def SeqOf: Rule1[Model.Type] = rule {
+    "Seq(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.SeqOf(t))
+  }
   def Variable: Rule1[Model.Variable] = rule {
     (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
       WhitespaceSeparator) ~ Type) ~> ((n, t) => Model.Variable(n, t))

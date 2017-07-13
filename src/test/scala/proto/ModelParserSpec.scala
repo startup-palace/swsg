@@ -4,10 +4,11 @@ import proto.Model._
 
 class ModelSpec extends FlatSpec with Matchers {
   "Model parser" should "work with a simple model" in {
-    val input = """
+    val input =
+      """
 e
   name Registration
-  attributes (name: String, email: String, date: DateTime)
+  attributes (name: String, email: String, date: DateTime, test: Seq(String))
 e
   name CancelledRegistration
   attributes (registration: Registration)
@@ -65,7 +66,8 @@ ac
         Entity("Registration",
                Set(Variable("name", Str),
                    Variable("email", Str),
-                   Variable("date", DateTime))),
+                   Variable("date", DateTime),
+                   Variable("test", SeqOf(Str)))),
         Entity("CancelledRegistration",
                Set(Variable("registration", EntityRef("Registration"))))
       ),
