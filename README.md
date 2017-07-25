@@ -21,6 +21,7 @@ java -jar wssg.jar check --model example/registration.model
 - run SBT: `./sbt`
 - compile: `compile`
 - run tests: `test`
+- generate a JAR: `assembly` (the JAR will be in `target/scala-2.12/wssg.jar`)
 
 ## License
 
