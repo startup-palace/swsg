@@ -1,18 +1,18 @@
-Web Services Safe Generator
+Safe Web Services Generator
 ===========================
 
-WSSG is a tool that verifies the consitency of web services models and generate executable web services from them.
+SWSG is a tool that verifies the consitency of web services models and generate executable web services from them.
 
 ## How to use
 
 - install Java (JRE/JDK 8)
-- run the precompiled JAR: `java -jar wssg.jar --help`
+- run the precompiled JAR: `java -jar swsg.jar --help`
 - **or** run from SBT: `./sbt "run --help"`
 
 You can checkk the [example model](example/registration.model) by running:
 
 ```text
-java -jar wssg.jar check --model example/registration.model
+java -jar swsg.jar check --model example/registration.model
 ```
 
 ## How to compile
@@ -21,7 +21,7 @@ java -jar wssg.jar check --model example/registration.model
 - run SBT: `./sbt`
 - compile: `compile`
 - run tests: `test`
-- generate a JAR: `assembly` (the JAR will be in `target/scala-2.12/wssg.jar`)
+- generate a JAR: `assembly` (the JAR will be in `target/scala-2.12/swsg.jar`)
 
 ## License
 

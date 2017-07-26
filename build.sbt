@@ -25,6 +25,6 @@ lazy val root = (project in file(".")).settings(
   scalafmtOnCompile in ThisBuild := true,
   scalafmtTestOnCompile in ThisBuild := true,
   ignoreErrors in (ThisBuild, scalafmt) := false,
-  assemblyJarName in assembly := "wssg.jar",
+  assemblyJarName in assembly := "swsg.jar",
   test in assembly := {}
 )

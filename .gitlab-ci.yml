@@ -46,7 +46,7 @@ fat_jar:
   stage: deploy
   variables:
     SCALA_VERSION: "2.12"
-    JAR_NAME: "wssg"
+    JAR_NAME: "swsg"
   script:
     - ./sbt assembly
     - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
