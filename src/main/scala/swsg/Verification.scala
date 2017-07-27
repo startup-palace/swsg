@@ -19,25 +19,25 @@ final case object ConsistencyVerification extends AutoVerification {
 
   val levels = Seq(
     Set(
-      ComponentNameUnicity,
-      EntityNameUnicity,
-      AttributeNameUnicity,
+      ComponentNameUnicity, // Component name uniqueness
+      EntityNameUnicity, // Entity name uniqueness
+      AttributeNameUnicity, // Same entity’s attributes name uniqueness
       ReferenceConsistency
     ),
     Set(
-      RecursiveReferenceConsistency,
-      ComponentContextVariableNameUnicity,
-      CompositeComponentNonEmptiness,
+      RecursiveReferenceConsistency, // Composite components flattenability
+      ComponentContextVariableNameUnicity, // Context variable name uniqueness
+      CompositeComponentNonEmptiness, // Composite component nonemptiness
       ContextVariablesTypeValidity
     ),
     Set(
-      ComponentContextImmutability,
-      ComponentPreconditionExhaustivity,
+      ComponentContextImmutability, // Context immutability
+      ComponentPreconditionExhaustivity, // Component’s precondition exhaustivity
       ComponentInstanceBindingsConsistency
     ),
     Set(
-      ComponentInstanceParametersExhaustivity,
-      ContextValidity
+      ComponentInstanceParametersExhaustivity, // Component instances’ parameters exhaustivity
+      ContextValidity // Context validity
     )
   )
 }
