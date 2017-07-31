@@ -37,11 +37,20 @@ final case object Tasks {
         .write(item._2)
       s"'${path}' written"
     }
+    val postMsg = """
 
-    for {
+To enable generated code, edit "config/app.php" and replace
+  App\Providers\RouteServiceProvider::class
+by
+  App\Providers\GeneratedRouteServiceProvider::class
+"""
+
+    val output = for {
       backend <- backends.find(_.name == backendName).toRight(unknownBackend)
       model   <- check(modelFile)
       impl    <- Implementation.fromPath(implementationPath).left.map(_.toString)
     } yield backend.generate(model, impl).toSeq.map(writeOutput).mkString("\n")
+
+    output.map(_ ++ postMsg)
   }
 }

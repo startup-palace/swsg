@@ -14,7 +14,8 @@ lazy val root = (project in file("."))
       "-feature",
       "-Xfatal-warnings",
       "-Xfuture",
-      "-Xlint"
+      "-Xlint",
+      "-Xlint:-missing-interpolator"
     ),
     libraryDependencies ++= Seq(
       scalaTest % Test,
@@ -34,7 +35,7 @@ lazy val root = (project in file("."))
       //"play.twirl.api.TwirlHelperImports._",
       "play.twirl.api.Txt",
       //"swsg._",
-      "swsg.backend.Backend"
+      "swsg.backend._"
     )
   )
   .enablePlugins(SbtTwirl)

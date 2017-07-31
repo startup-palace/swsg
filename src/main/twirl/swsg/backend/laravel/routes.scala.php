@@ -2,9 +2,25 @@
 // @Backend.header
 
 @for(s <- services) {
-Route::match(['@{s.method.toLowerCase}'], '{url}', function ($url) {
-    dd($url);
-})->where('url', '@{s.url}');
+Route::match(['@{s.method.toLowerCase}'], '{url}', function (string $url) {
+    preg_match_all('/@{s.url.stripPrefix("\\/")}/', $url, $params);
+    $expectedParams = [@{s.params.map(p => s"'${p.name}'").mkString(", ")}];
+    $diff = array_diff($expectedParams, array_keys($params));
+    if (!empty($diff)) {
+        $missing = implode(', ', array_map(function ($p) {
+            return "'$p'";
+        }, $diff));
+        throw new Symfony\Component\HttpKernel\Exception\NotFoundHttpException('Several URL parameters are missing: '.$missing.'. Please fix URL pattern (\'@{s.url}\') in the model.');
+    }
+    $intersection = array_map(function ($v) {
+        return $v[0];
+    }, array_filter($params, function ($v, $k) use ($expectedParams) {
+        return in_array($k, $expectedParams, true);
+    }, ARRAY_FILTER_USE_BOTH));
+    $ctx = new @{Laravel.componentNamespace}\Ctx($intersection);
+    return ($ctx);
+})->where('url', '@{s.url.stripPrefix("\\/")}');
 }
+
 
 @* "https://github.com/playframework/twirl/issues/105" *@@if(List.empty[Txt]){}
