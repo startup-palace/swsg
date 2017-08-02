@@ -1,5 +1,6 @@
 package swsg.backend
 
+import scala.collection.Map
 import swsg.Model
 
 /** A backend to generate a web application from a [[Model]].*/

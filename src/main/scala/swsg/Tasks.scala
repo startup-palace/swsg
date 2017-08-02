@@ -35,7 +35,7 @@ final case object Tasks {
       path
         .createIfNotExists(createParents = true)
         .write(item._2)
-      s"'${path}' written"
+      s"Wrote '${path}'"
     }
     val postMsg = """
 
@@ -48,7 +48,10 @@ by
     val output = for {
       backend <- backends.find(_.name == backendName).toRight(unknownBackend)
       model   <- check(modelFile)
-      impl    <- Implementation.fromPath(implementationPath).left.map(_.toString)
+      impl <- Implementation
+        .fromPath(model, implementationPath)
+        .left
+        .map(_.toString)
     } yield backend.generate(model, impl).toSeq.map(writeOutput).mkString("\n")
 
     output.map(_ ++ postMsg)

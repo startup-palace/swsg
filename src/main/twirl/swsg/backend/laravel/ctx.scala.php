@@ -1,7 +1,7 @@
 <?php
 // @Backend.header
 
-namespace @Laravel.componentNamespace;
+namespace @Laravel.swsgNamespace;
 
 class Ctx
 {

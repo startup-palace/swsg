@@ -1,6 +1,9 @@
 @(services: Seq[swsg.Model.Service])<?php
 // @Backend.header
 
+use @{Laravel.swsgNamespace}\Ctx;
+use @{Laravel.swsgNamespace}\Params;
+
 @for(s <- services) {
 Route::match(['@{s.method.toLowerCase}'], '{url}', function (string $url) {
     preg_match_all('/@{s.url.stripPrefix("\\/")}/', $url, $params);
@@ -17,8 +20,8 @@ Route::match(['@{s.method.toLowerCase}'], '{url}', function (string $url) {
     }, array_filter($params, function ($v, $k) use ($expectedParams) {
         return in_array($k, $expectedParams, true);
     }, ARRAY_FILTER_USE_BOTH));
-    $ctx = new @{Laravel.componentNamespace}\Ctx($intersection);
-    return ($ctx);
+    @*return @{Laravel.componentNamespace}\@{s.component.component.target}::@{Laravel.executeMethod}(new Ctx($intersection), new Params());*@
+    return @{Laravel.instantiate(s.component, "new Ctx($intersection)")};
 })->where('url', '@{s.url.stripPrefix("\\/")}');
 }
 
