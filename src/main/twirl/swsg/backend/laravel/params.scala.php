@@ -17,9 +17,9 @@ class Params
         return print_r($this->dump(), true);
     }
 
-    public function get($name, $dataType)
+    public function get($name)
     {
-        return array_filter($this->params, function ($p) use ($name, $dataType) {
+        return array_filter($this->params, function ($p) use ($name) {
             return $p->name === $name;
         })[0];
     }

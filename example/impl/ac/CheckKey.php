@@ -8,9 +8,12 @@ use App\SWSG\Params;
 
 class CheckKey implements Component
 {
-    public static function execute(Ctx $ctx, Params $params)
+    public static function execute(Params $params, Ctx $ctx)
     {
-        var_dump($ctx, $params);
-        return $ctx;
+        if ($ctx->get('key') !== $params->get('correctKey')->value) {
+            return response('Invalid key', 401);
+        } else {
+            return $ctx;
+        }
     }
 }

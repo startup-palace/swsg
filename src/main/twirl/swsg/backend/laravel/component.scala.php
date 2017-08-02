@@ -5,7 +5,7 @@ namespace @Laravel.swsgNamespace;
 
 interface Component
 {
-    public static function @{Laravel.executeMethod}(Ctx $ctx, Params $params);
+    public static function @{Laravel.executeMethod}(Params $params, Ctx $ctx);
 }
 
 

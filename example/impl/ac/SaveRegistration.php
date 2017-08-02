@@ -8,7 +8,7 @@ use App\SWSG\Params;
 
 class SaveRegistration implements Component
 {
-    public static function execute(Ctx $ctx, Params $params)
+    public static function execute(Params $params, Ctx $ctx)
     {
         var_dump($ctx, $params);
         return $ctx;

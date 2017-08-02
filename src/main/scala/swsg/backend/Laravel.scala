@@ -60,6 +60,6 @@ final case object Laravel extends Backend {
       s"new \\${swsgNamespace}\\Variable('${b.param.name}', '${b.param.`type`}', ${value})"
     }
     val params = ci.bindings.map(transformBinding).mkString(", ")
-    s"\\${componentNamespace}\\${ci.component.target}::${executeMethod}(${ctx}, new \\${swsgNamespace}\\Params([${params}]))"
+    s"\\${componentNamespace}\\${ci.component.target}::${executeMethod}(new \\${swsgNamespace}\\Params([${params}]), ${ctx})"
   }
 }
