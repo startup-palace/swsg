@@ -6,11 +6,14 @@ use App\SWSG\Component;
 use App\SWSG\Ctx;
 use App\SWSG\Params;
 
+use Illuminate\Support\Facades\DB;
+
 class FetchRegistrations implements Component
 {
     public static function execute(Params $params, Ctx $ctx)
     {
-        var_dump($ctx, $params);
+        $registrations = DB::table('registration')->get();
+        $ctx->add('registrations', $registrations);
         return $ctx;
     }
 }

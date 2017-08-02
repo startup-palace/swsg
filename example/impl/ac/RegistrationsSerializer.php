@@ -10,7 +10,6 @@ class RegistrationsSerializer implements Component
 {
     public static function execute(Params $params, Ctx $ctx)
     {
-        var_dump($ctx, $params);
-        return $ctx;
+        return response($ctx->get('registrations')->toJson());
     }
 }
