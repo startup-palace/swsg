@@ -72,6 +72,11 @@ final case object Main extends App {
       .action((x, c) => c.copy(backend = x))
       .text("backend name")
 
+    opt[String]('o', "output")
+      .valueName("<path>")
+      .action((x, c) => c.copy(outputPath = x))
+      .text("path to the output directory")
+
     cmd("check")
       .text("Check a web app model")
       .action((_, c) => c.copy(mode = "check"))

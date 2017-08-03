@@ -51,7 +51,7 @@ gen_example:
   <<: *scala
   stage: test
   script:
-    - ./sbt "run gen --model example/registration.model --implementation example/impl/ --output example/output/"
+    - ./sbt "run gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/"
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
