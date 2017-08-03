@@ -1,6 +1,13 @@
 variables:
   DEBIAN_FRONTEND: noninteractive
+  COMPOSER_NO_INTERACTION: "1"
   COURSIER_VERSION: 1.0.0-RC8
+
+stages:
+  - build
+  - test
+  - test_example
+  - deploy
 
 .scala-job: &scala
   image: hseeberger/scala-sbt
@@ -37,13 +44,41 @@ check_example:
   <<: *scala
   stage: test
   script:
-    - ./sbt "run -m example/registration.model"
+    - ./sbt "run check --model example/registration.model"
+  tags:
+    - docker
+
+gen_example:
+  <<: *scala
+  stage: test
+  script:
+    - ./sbt "run gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/"
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
+    paths:
+      - example/output/
+    expire_in: 1 day
+  tags:
+    - docker
+
+test_gen_example:
+  image: composer
+  stage: test_example
+  dependencies:
+    - gen_example
+  script:
+    - cd example/output/
+    - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
+    - composer install --no-progress
+    - ./vendor/bin/phpunit
   tags:
     - docker
 
 fat_jar:
   <<: *scala
   stage: deploy
+  dependencies:
+    - compile
   variables:
     SCALA_VERSION: "2.12"
     JAR_NAME: "swsg"
