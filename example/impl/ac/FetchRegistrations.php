@@ -6,7 +6,7 @@ use App\SWSG\Component;
 use App\SWSG\Ctx;
 use App\SWSG\Params;
 
-use Illuminate\Support\Facades\DB;
+use DB;
 
 class FetchRegistrations implements Component
 {

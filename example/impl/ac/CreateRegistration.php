@@ -10,7 +10,7 @@ class CreateRegistration implements Component
 {
     public static function execute(Params $params, Ctx $ctx)
     {
-        var_dump($ctx, $params);
+        $ctx->add('registration', ['name' => $ctx->get('name'), 'email' => $ctx->get('email')]);
         return $ctx;
     }
 }
