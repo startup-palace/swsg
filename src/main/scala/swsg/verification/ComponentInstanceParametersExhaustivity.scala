@@ -5,11 +5,7 @@ import swsg.Model._
 
 final case object ComponentInstanceParametersExhaustivity extends Verification {
   def run(model: Model): Seq[ModelError] = {
-    val compositeComponents = model.components.collect {
-      case c @ CompositeComponent(_, _, _) => c
-    }
-
-    val ccErrors = compositeComponents.toSeq
+    val ccErrors = model.compositeComponents.toSeq
       .flatMap(
         cc =>
           cc.components.flatMap(

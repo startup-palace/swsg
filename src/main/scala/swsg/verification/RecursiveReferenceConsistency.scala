@@ -13,10 +13,7 @@ final case object RecursiveReferenceConsistency extends AutoVerification {
 
 final case object RecursiveComponentRefConsistency extends Verification {
   def run(model: Model): Seq[RecursiveReferenceError] = {
-    val compositeComponents = model.components.collect {
-      case c @ CompositeComponent(_, _, _) => c
-    }
-    compositeComponents
+    model.compositeComponents
       .flatMap(cc =>
         checkRecursiveComponentRefConsistency(model.components, Seq.empty, cc))
       .toSeq

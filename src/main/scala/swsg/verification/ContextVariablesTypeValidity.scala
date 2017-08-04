@@ -5,11 +5,7 @@ import swsg.Model._
 
 final case object ContextVariablesTypeValidity extends Verification {
   def run(model: Model): Seq[ModelError] = {
-    val atomicComponents = model.components.collect {
-      case c @ AtomicComponent(_, _, _, _, _) => c
-    }
-
-    val acErrors = atomicComponents.toSeq
+    val acErrors = model.atomicComponents.toSeq
       .flatMap { ac =>
         val check = checkVariables(ContextElement.AtomicComponent, ac.name)(_)
         check(ac.pre) ++ check(ac.add) ++ check(ac.rem)

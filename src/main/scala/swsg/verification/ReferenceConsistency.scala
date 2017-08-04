@@ -13,11 +13,8 @@ final case object ReferenceConsistency extends AutoVerification {
 
 final case object ComponentRefConsistency extends Verification {
   def run(model: Model): Seq[BrokenReferenceError] = {
-    val compositeComponents = model.components.collect {
-      case c @ CompositeComponent(_, _, _) => c
-    }
     val references: Seq[(Reference.Source, Identifier, ComponentRef)] =
-      compositeComponents.toSeq.flatMap { cc =>
+      model.compositeComponents.toSeq.flatMap { cc =>
         cc.components.map(ci =>
           (Reference.CompositeComponent, cc.name, ci.component))
       } ++ model.services.toSeq.flatMap { s =>

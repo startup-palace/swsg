@@ -5,10 +5,7 @@ import swsg.Model._
 
 final case object ComponentContextVariableNameUnicity extends Verification {
   def run(model: Model): Seq[ComponentContextVariableNameUnicityError] = {
-    val atomicComponents = model.components.collect {
-      case c @ AtomicComponent(_, _, _, _, _) => c
-    }
-    atomicComponents.toSeq.flatMap(checkAtomicComponent)
+    model.atomicComponents.toSeq.flatMap(checkAtomicComponent)
   }
 
   private def checkAtomicComponent(component: AtomicComponent)

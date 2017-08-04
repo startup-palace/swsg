@@ -4,7 +4,15 @@ import Model._
 
 final case class Model(entities: Set[Entity],
                        components: Set[Component],
-                       services: Seq[Service])
+                       services: Seq[Service]) {
+  lazy val atomicComponents: Set[AtomicComponent] = this.components.collect {
+    case ac @ AtomicComponent(_, _, _, _, _) => ac
+  }
+  lazy val compositeComponents: Set[CompositeComponent] =
+    this.components.collect {
+      case cc @ CompositeComponent(_, _, _) => cc
+    }
+}
 
 final case object Model {
   type Identifier = String

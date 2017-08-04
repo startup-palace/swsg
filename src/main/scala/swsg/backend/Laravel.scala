@@ -16,17 +16,11 @@ final case object Laravel extends Backend {
 
   def generate(model: Model, impl: Implementation): Map[String, String] = {
     val routeFile = php.routes(model.services)
-    val atomicComponentFiles = model.components
-      .collect {
-        case AtomicComponent(name, _, _, _, _) =>
-          impl.atomicComponents.find(_._1 == name).get
-      }
+    val atomicComponentFiles = model.atomicComponents
+      .map(c => impl.atomicComponents.find(_._1 == c.name).get)
       .map(acImpl => s"${componentBaseDir}/${acImpl._1}.php" -> acImpl._2)
-    val compositeComponentFiles = model.components
-      .collect {
-        case c @ CompositeComponent(name, _, _) =>
-          s"${componentBaseDir}/${name}.php" -> php.compositeComponent(c)
-      }
+    val compositeComponentFiles = model.compositeComponents.map(c =>
+      s"${componentBaseDir}/${c.name}.php" -> php.compositeComponent(c))
 
     val generatedFiles = (Map(
       "routes/generated.php" -> routeFile,
