@@ -2,12 +2,15 @@ variables:
   DEBIAN_FRONTEND: noninteractive
   COMPOSER_NO_INTERACTION: "1"
   COURSIER_VERSION: 1.0.0-RC10
+  SCALA_VERSION: "2.12"
+  JAR_NAME: "swsg"
 
 stages:
   - build
   - test
+  - package
+  - example
   - test_example
-  - deploy
 
 .scala-job: &scala
   image: hseeberger/scala-sbt
@@ -40,19 +43,37 @@ unit:
   tags:
     - docker
 
+fat_jar:
+  <<: *scala
+  stage: package
+  dependencies:
+    - compile
+  script:
+    - ./sbt assembly
+    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
+    paths:
+      - target/scala-$SCALA_VERSION/$JAR_NAME.jar
+    expire_in: 15 day
+  tags:
+    - docker
+
 check_example:
   <<: *scala
-  stage: test
+  stage: example
+  dependencies:
+    - fat_jar
   script:
-    - ./sbt "run check --model example/registration.model"
+    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar check --model example/registration.model
   tags:
     - docker
 
 gen_example:
   <<: *scala
-  stage: test
+  stage: example
   script:
-    - ./sbt "run gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/"
+    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/"
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
@@ -71,24 +92,5 @@ test_gen_example:
     - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
     - composer install --no-progress
     - ./vendor/bin/phpunit
-  tags:
-    - docker
-
-fat_jar:
-  <<: *scala
-  stage: deploy
-  dependencies:
-    - compile
-  variables:
-    SCALA_VERSION: "2.12"
-    JAR_NAME: "swsg"
-  script:
-    - ./sbt assembly
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
-    paths:
-      - target/scala-$SCALA_VERSION/$JAR_NAME.jar
-    expire_in: 15 day
   tags:
     - docker
