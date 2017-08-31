@@ -7,8 +7,6 @@ variables:
 
 stages:
   - build
-  - test
-  - package
   - example
   - test_example
 
@@ -20,40 +18,18 @@ stages:
     - java -version
     - javac -version
 
-compile:
+fat_jar:
   <<: *scala
   stage: build
   script:
-    - ./sbt compile
+    - ./sbt compile test assembly
+    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
       - project/project/
       - project/target/
       - target/
-    expire_in: 1 day
-  tags:
-    - docker
-
-unit:
-  <<: *scala
-  stage: test
-  script:
-    - ./sbt test
-  tags:
-    - docker
-
-fat_jar:
-  <<: *scala
-  stage: package
-  dependencies:
-    - compile
-  script:
-    - ./sbt assembly
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
-    paths:
       - target/scala-$SCALA_VERSION/$JAR_NAME.jar
     expire_in: 15 day
   tags:
