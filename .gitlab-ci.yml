@@ -73,7 +73,7 @@ gen_example:
   <<: *scala
   stage: example
   script:
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/"
+    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
