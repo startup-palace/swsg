@@ -10,12 +10,12 @@ final case object Tasks {
     ModelParser.parse(serializedModel) match {
       case Left(e) => Left(e)
       case Right(model) => {
-        ConsistencyVerification.run(model) match {
-          case Seq() => {
+        ConsistencyVerification.run(model).toVector match {
+          case Vector() => {
             println("Model OK")
             Right(model)
           }
-          case Seq(e) => Left(e.toString)
+          case s @ Vector(_*) => Left(s.mkString("\n"))
         }
       }
     }
