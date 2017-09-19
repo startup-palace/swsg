@@ -1,4 +1,4 @@
-@(services: Seq[swsg.Model.Service])<?php
+@(cs: Set[swsg.Model.Component], services: Seq[swsg.Model.Service])<?php
 // @Backend.header
 
 use @{Laravel.swsgNamespace}\Ctx;
@@ -21,7 +21,7 @@ Route::match(['@{s.method.toLowerCase}'], '{url}', function (string $url) {
         return in_array($k, $expectedParams, true);
     }, ARRAY_FILTER_USE_BOTH));
     @*return @{Laravel.componentNamespace}\@{s.component.component.target}::@{Laravel.executeMethod}(new Ctx($intersection), new Params());*@
-    return @{Laravel.instantiate(s.component, "new Ctx($intersection)")};
+    return @{Laravel.instantiate(cs, s.component, "(new Ctx($intersection))")};
 })->where('url', '@{s.url.stripPrefix("\\/")}');
 }
 
