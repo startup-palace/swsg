@@ -114,4 +114,41 @@ class ContextValiditySpec extends FlatSpec with Matchers {
 
     errors should contain theSameElementsAs expectedErrors
   }
+
+  it should "succeed component instances have the right aliases" in {
+    val m = Model(
+      Set.empty,
+      Set(
+        AtomicComponent("SanitizeEmail",
+                        Set.empty,
+                        Set(Variable("email", Str)),
+                        Set(Variable("sanitizedEmail", Str)),
+                        Set.empty),
+        CompositeComponent(
+          "SanitizeEmails",
+          Set.empty,
+          Seq(
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email1"),
+                                  Alias("sanitizedEmail", "sanitizedEmail1"))),
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email2"),
+                                  Alias("sanitizedEmail", "sanitizedEmail2")))
+          )
+        )
+      ),
+      Seq(
+        Service("GET",
+                "\\/",
+                Set(Variable("email1", Str), Variable("email2", Str)),
+                ComponentInstance(ComponentRef("SanitizeEmails"),
+                                  Set.empty,
+                                  Set.empty)))
+    )
+    val errors = ConsistencyVerification.run(m)
+
+    errors shouldBe empty
+  }
 }
