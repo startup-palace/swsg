@@ -23,7 +23,7 @@ cc
 cc
   name GetAttendees
   params (apiKey: String)
-  ci CheckKey(correctKey = apiKey)
+  ci CheckKey(correctKey = apiKey)<userKey -> key>
   ci FetchRegistrations
   ci RegistrationsSerializer
 
@@ -46,7 +46,7 @@ ac
 ac
   name CheckKey
   params (correctKey: String)
-  pre (key: String)
+  pre (userKey: String)
 ac
   name FetchRegistrations
   add (registrations: Seq(Registration))
