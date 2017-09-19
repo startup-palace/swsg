@@ -12,23 +12,23 @@ class RecursiveReferenceConsistencySpec extends FlatSpec with Matchers {
           "c2",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("c1"), Set.empty),
-            ComponentInstance(ComponentRef("c3"), Set.empty)
+            ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty)
           )
         ),
         CompositeComponent(
           "c3",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("c1"), Set.empty),
-            ComponentInstance(ComponentRef("c2"), Set.empty)
+            ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)
           )
         ),
         CompositeComponent(
           "c4",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("c4"), Set.empty)
+            ComponentInstance(ComponentRef("c4"), Set.empty, Set.empty)
           )
         )
       ),

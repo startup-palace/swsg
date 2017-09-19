@@ -12,9 +12,9 @@ class ReferenceConsistencySpec extends FlatSpec with Matchers {
           "c2",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("c1"), Set.empty),
-            ComponentInstance(ComponentRef("c3"), Set.empty),
-            ComponentInstance(ComponentRef("c1"), Set.empty)
+            ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty)
           )
         )
       ),
@@ -22,7 +22,7 @@ class ReferenceConsistencySpec extends FlatSpec with Matchers {
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c4"), Set.empty)))
+                ComponentInstance(ComponentRef("c4"), Set.empty, Set.empty)))
     )
     val expectedErrors = Set(
       BrokenReferenceError(Reference.CompositeComponent,

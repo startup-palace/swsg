@@ -47,8 +47,10 @@ final case object Model {
                                       components: Seq[ComponentInstance])
       extends Component
   final case class ComponentInstance(component: ComponentRef,
-                                     bindings: Set[Binding])
+                                     bindings: Set[Binding],
+                                     aliases: Set[Alias])
   final case class Binding(param: Variable, argument: Term)
+  final case class Alias(source: Identifier, target: Identifier)
 
   final case class ComponentRef(target: Identifier) extends AnyVal
 

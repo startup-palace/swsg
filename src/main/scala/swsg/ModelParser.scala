@@ -68,7 +68,7 @@ case class ModelParser(input: ParserInput) extends Parser {
     LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings) ~> (
         (n: String,
          bs: Seq[Model.Binding]) =>
-          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet))
+          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet, Set.empty))
   }
 
   // Atomic component

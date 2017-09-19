@@ -13,7 +13,7 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty))
+                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -35,17 +35,17 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent("c3",
-                           Set.empty,
-                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-                               ComponentInstance(ComponentRef("c2"),
-                                                 Set.empty)))
+        CompositeComponent(
+          "c3",
+          Set.empty,
+          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
                 "\\/",
                 Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty))
+                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -67,7 +67,7 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty))
+                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -92,17 +92,17 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent("c3",
-                           Set.empty,
-                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-                               ComponentInstance(ComponentRef("c2"),
-                                                 Set.empty)))
+        CompositeComponent(
+          "c3",
+          Set.empty,
+          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
                 "\\/",
                 Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty))
+                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
