@@ -65,10 +65,11 @@ case class ModelParser(input: ParserInput) extends Parser {
         (ps: Option[Seq[Model.Variable]]) => ps.getOrElse(Seq.empty))
   }
   def Ci: Rule1[Model.ComponentInstance] = rule {
-    LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings) ~> (
+    LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings ~ Aliases) ~> (
         (n: String,
-         bs: Seq[Model.Binding]) =>
-          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet, Set.empty))
+         bs: Seq[Model.Binding],
+         as: Seq[Model.Alias]) =>
+          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet, as.toSet))
   }
 
   // Atomic component
@@ -156,6 +157,16 @@ case class ModelParser(input: ParserInput) extends Parser {
   def Bindings: Rule1[Seq[Model.Binding]] = rule {
     optional('(' ~ oneOrMore(Binding).separatedBy(ParameterSeparator) ~ ')') ~> (
         (bs: Option[Seq[Model.Binding]]) => bs.getOrElse(Seq.empty))
+  }
+  def Alias: Rule1[Model.Alias] = rule {
+    (VariableName ~ optional(WhitespaceSeparator) ~ "->" ~ optional(
+      WhitespaceSeparator) ~ VariableName) ~> ((source: String,
+                                                target: String) =>
+                                                 Model.Alias(source, target))
+  }
+  def Aliases: Rule1[Seq[Model.Alias]] = rule {
+    optional('<' ~ oneOrMore(Alias).separatedBy(ParameterSeparator) ~ '>') ~> (
+        (as: Option[Seq[Model.Alias]]) => as.getOrElse(Seq.empty))
   }
   def Term: Rule1[Model.Term] = rule { StrConstant | TermVariable }
   def StrConstant: Rule1[Model.Constant] = rule {

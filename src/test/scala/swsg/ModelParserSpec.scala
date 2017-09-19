@@ -162,4 +162,47 @@ ac
     parsedModel shouldBe a[Right[_, _]]
     parsedModel.right.get shouldBe model
   }
+
+  it should "handle component instance aliases" in {
+    val input =
+      """
+cc
+  name SanitizeEmails
+  ci SanitizeEmail<email -> email1, sanitizedEmail -> sanitizedEmail1>
+  ci SanitizeEmail<email -> email2, sanitizedEmail -> sanitizedEmail2>
+
+ac
+  name SanitizeEmail
+  pre (email: String)
+  add (sanitizedEmail: String)
+"""
+    val model = Model(
+      Set.empty,
+      Set(
+        AtomicComponent("SanitizeEmail",
+                        Set.empty,
+                        Set(Variable("email", Str)),
+                        Set(Variable("sanitizedEmail", Str)),
+                        Set.empty),
+        CompositeComponent(
+          "SanitizeEmails",
+          Set.empty,
+          Seq(
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email1"),
+                                  Alias("sanitizedEmail", "sanitizedEmail1"))),
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email2"),
+                                  Alias("sanitizedEmail", "sanitizedEmail2")))
+          )
+        )
+      ),
+      Seq.empty
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
 }
