@@ -25,7 +25,13 @@ final case class Flattener(components: Set[Component]) {
       ci: ComponentInstance,
       parents: Seq[Identifier] = Seq.empty): Seq[AtomicComponentWithParents] = {
     val c: Component = Reference.resolve(ci.component, components).get
-    flattenWithParents(c, parents)
+    val r            = resolveAliases(ci.aliases)(_)
+    val resolvedC: Component = c match {
+      case cc @ CompositeComponent(_, _, _) => cc
+      case AtomicComponent(n, p, pre, add, rem) =>
+        AtomicComponent(n, p, r(pre), r(add), r(rem))
+    }
+    flattenWithParents(resolvedC, parents)
   }
 
   def flatten(c: Component): Seq[AtomicComponent] = {
@@ -34,6 +40,15 @@ final case class Flattener(components: Set[Component]) {
 
   def flatten(ci: ComponentInstance): Seq[AtomicComponent] = {
     flattenWithParents(ci, Seq.empty).map(_.component)
+  }
+
+  private def resolveAliases(aliases: Set[Alias])(
+      vars: Set[Variable]): Set[Variable] = {
+    vars.map(v =>
+      aliases.find(_.source == v.name) match {
+        case None    => v
+        case Some(a) => Variable(a.target, v.`type`)
+    })
   }
 
 }

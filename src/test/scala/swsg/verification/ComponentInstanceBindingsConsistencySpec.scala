@@ -18,16 +18,20 @@ class ComponentInstanceBindingsConsistencySpec extends FlatSpec with Matchers {
           Seq(
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Constant(Str, "some value")))),
+              Set(Binding(Variable("p1", Str), Constant(Str, "some value"))),
+              Set.empty),
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Constant(Integer, 10)))),
+              Set(Binding(Variable("p1", Str), Constant(Integer, 10))),
+              Set.empty),
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Variable("p2", Str)))),
+              Set(Binding(Variable("p1", Str), Variable("p2", Str))),
+              Set.empty),
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Variable("p3", Integer))))
+              Set(Binding(Variable("p1", Str), Variable("p3", Integer))),
+              Set.empty)
           )
         )
       ),
@@ -37,7 +41,8 @@ class ComponentInstanceBindingsConsistencySpec extends FlatSpec with Matchers {
                 Set.empty,
                 ComponentInstance(
                   ComponentRef("c1"),
-                  Set(Binding(Variable("p1", Str), Constant(Integer, 1))))))
+                  Set(Binding(Variable("p1", Str), Constant(Integer, 1))),
+                  Set.empty)))
     )
     val expectedErrors = Seq(
       IncorrectBindingError(Reference.CompositeComponent,

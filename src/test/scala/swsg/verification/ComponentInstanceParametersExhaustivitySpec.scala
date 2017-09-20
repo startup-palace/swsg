@@ -20,10 +20,12 @@ class ComponentInstanceParametersExhaustivitySpec
           Seq(
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Constant(Str, "some value")))),
+              Set(Binding(Variable("p1", Str), Constant(Str, "some value"))),
+              Set.empty),
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Integer), Constant(Integer, 10))))
+              Set(Binding(Variable("p1", Integer), Constant(Integer, 10))),
+              Set.empty)
           )
         )
       ),
@@ -31,7 +33,7 @@ class ComponentInstanceParametersExhaustivitySpec
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty)))
+                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty)))
     )
     val expectedErrors = Set(
       MissingArgumentError(Reference.CompositeComponent,
@@ -67,7 +69,8 @@ class ComponentInstanceParametersExhaustivitySpec
           Seq(
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Variable("p2", Str)))))
+              Set(Binding(Variable("p1", Str), Variable("p2", Str))),
+              Set.empty))
         ),
         CompositeComponent(
           "c3",
@@ -75,7 +78,8 @@ class ComponentInstanceParametersExhaustivitySpec
           Seq(
             ComponentInstance(
               ComponentRef("c2"),
-              Set(Binding(Variable("p2", Str), Constant(Str, "some value")))))
+              Set(Binding(Variable("p2", Str), Constant(Str, "some value"))),
+              Set.empty))
         )
       ),
       Seq.empty
@@ -101,7 +105,8 @@ class ComponentInstanceParametersExhaustivitySpec
           Seq(
             ComponentInstance(
               ComponentRef("c1"),
-              Set(Binding(Variable("p1", Str), Variable("p3", Str)))))
+              Set(Binding(Variable("p1", Str), Variable("p3", Str))),
+              Set.empty))
         ),
         CompositeComponent(
           "c3",
@@ -109,7 +114,8 @@ class ComponentInstanceParametersExhaustivitySpec
           Seq(
             ComponentInstance(
               ComponentRef("c2"),
-              Set(Binding(Variable("p2", Str), Constant(Str, "some value")))))
+              Set(Binding(Variable("p2", Str), Constant(Str, "some value"))),
+              Set.empty))
         )
       ),
       Seq.empty

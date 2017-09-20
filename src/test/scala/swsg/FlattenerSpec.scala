@@ -14,7 +14,7 @@ class FlattenerSpec extends FlatSpec with Matchers {
     def mkEmptyAC(name: Identifier) =
       AtomicComponent(name, Set.empty, Set.empty, Set.empty, Set.empty)
     def mkEmptyCI(c: Component) =
-      ComponentInstance(ComponentRef(c.name), Set.empty)
+      ComponentInstance(ComponentRef(c.name), Set.empty, Set.empty)
     def mkEmptyCC(name: Identifier, components: Seq[Component]) =
       CompositeComponent(name, Set.empty, components.map(mkEmptyCI))
 
@@ -36,7 +36,7 @@ class FlattenerSpec extends FlatSpec with Matchers {
     def mkEmptyAC(name: Identifier) =
       AtomicComponent(name, Set.empty, Set.empty, Set.empty, Set.empty)
     def mkEmptyCI(c: Component) =
-      ComponentInstance(ComponentRef(c.name), Set.empty)
+      ComponentInstance(ComponentRef(c.name), Set.empty, Set.empty)
     def mkEmptyCC(name: Identifier, components: Seq[Component]) =
       CompositeComponent(name, Set.empty, components.map(mkEmptyCI))
 

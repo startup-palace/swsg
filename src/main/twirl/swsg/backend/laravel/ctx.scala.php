@@ -17,25 +17,51 @@ class Ctx
         return print_r($this->dump(), true);
     }
 
+    protected function has(string $name)
+    {
+        return array_key_exists($name, $this->context);
+    }
+
     public function add(string $name, $value)
     {
+        if ($this->has($name)) {
+            throw new \Exception("Variable '$name' already exists in context!");
+        }
+
         $this->context[$name] = $value;
 
-        return true;
+        return $this;
     }
 
     public function get(string $name)
     {
+        if (!$this->has($name)) {
+            throw new \Exception("Variable '$name' does not exist in context!");
+        }
+
         return $this->context[$name];
     }
 
     public function rem(string $name)
     {
+        if (!$this->has($name)) {
+            throw new \Exception("Variable '$name' does not exist in context!");
+        }
+
         $this->context = array_filter($this->context, function ($key) use ($name) {
             return $key !== $name;
         }, ARRAY_FILTER_USE_KEY);
 
-        return true;
+        return $this;
+    }
+
+    public function unsafeRename(string $source, string $target)
+    {
+        $value = $this->get($source);
+        $this->rem($source);
+        $this->add($target, $value);
+
+        return $this;
     }
 
     public function dump()

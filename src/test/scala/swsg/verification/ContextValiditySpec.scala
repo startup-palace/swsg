@@ -13,7 +13,7 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty))
+                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -35,17 +35,17 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent("c3",
-                           Set.empty,
-                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-                               ComponentInstance(ComponentRef("c2"),
-                                                 Set.empty)))
+        CompositeComponent(
+          "c3",
+          Set.empty,
+          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
                 "\\/",
                 Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty))
+                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -67,7 +67,7 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty))
+                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -92,17 +92,17 @@ class ContextValiditySpec extends FlatSpec with Matchers {
                         Set(Variable("v1", Str), Variable("v2", Integer)),
                         Set.empty,
                         Set.empty),
-        CompositeComponent("c3",
-                           Set.empty,
-                           Seq(ComponentInstance(ComponentRef("c1"), Set.empty),
-                               ComponentInstance(ComponentRef("c2"),
-                                                 Set.empty)))
+        CompositeComponent(
+          "c3",
+          Set.empty,
+          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
+              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
                 "\\/",
                 Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty))
+                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -113,5 +113,42 @@ class ContextValiditySpec extends FlatSpec with Matchers {
     )
 
     errors should contain theSameElementsAs expectedErrors
+  }
+
+  it should "succeed component instances have the right aliases" in {
+    val m = Model(
+      Set.empty,
+      Set(
+        AtomicComponent("SanitizeEmail",
+                        Set.empty,
+                        Set(Variable("email", Str)),
+                        Set(Variable("sanitizedEmail", Str)),
+                        Set.empty),
+        CompositeComponent(
+          "SanitizeEmails",
+          Set.empty,
+          Seq(
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email1"),
+                                  Alias("sanitizedEmail", "sanitizedEmail1"))),
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email2"),
+                                  Alias("sanitizedEmail", "sanitizedEmail2")))
+          )
+        )
+      ),
+      Seq(
+        Service("GET",
+                "\\/",
+                Set(Variable("email1", Str), Variable("email2", Str)),
+                ComponentInstance(ComponentRef("SanitizeEmails"),
+                                  Set.empty,
+                                  Set.empty)))
+    )
+    val errors = ConsistencyVerification.run(m)
+
+    errors shouldBe empty
   }
 }

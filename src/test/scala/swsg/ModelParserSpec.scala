@@ -100,11 +100,21 @@ ac
           "Registration",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("ValidateEmail"), Set.empty),
-            ComponentInstance(ComponentRef("CheckDupRegistration"), Set.empty),
-            ComponentInstance(ComponentRef("CreateRegistration"), Set.empty),
-            ComponentInstance(ComponentRef("SaveRegistration"), Set.empty),
-            ComponentInstance(ComponentRef("RegistrationSerializer"), Set.empty)
+            ComponentInstance(ComponentRef("ValidateEmail"),
+                              Set.empty,
+                              Set.empty),
+            ComponentInstance(ComponentRef("CheckDupRegistration"),
+                              Set.empty,
+                              Set.empty),
+            ComponentInstance(ComponentRef("CreateRegistration"),
+                              Set.empty,
+                              Set.empty),
+            ComponentInstance(ComponentRef("SaveRegistration"),
+                              Set.empty,
+                              Set.empty),
+            ComponentInstance(ComponentRef("RegistrationSerializer"),
+                              Set.empty,
+                              Set.empty)
           )
         ),
         CompositeComponent(
@@ -113,9 +123,13 @@ ac
           Seq(
             ComponentInstance(ComponentRef("CheckKey"),
                               Set(Binding(Variable("correctKey", Str),
-                                          Variable("apiKey", Str)))),
-            ComponentInstance(ComponentRef("FetchRegistrations"), Set.empty),
+                                          Variable("apiKey", Str))),
+                              Set.empty),
+            ComponentInstance(ComponentRef("FetchRegistrations"),
+                              Set.empty,
+                              Set.empty),
             ComponentInstance(ComponentRef("RegistrationsSerializer"),
+                              Set.empty,
                               Set.empty)
           )
         )
@@ -125,13 +139,13 @@ ac
           "GET",
           "\\/",
           Set.empty,
-          ComponentInstance(ComponentRef("Home"), Set.empty)
+          ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
         ),
         Service(
           "POST",
           "\\/register\\/(?<name>[^/]+)\\/(?<email>[^/]+)",
           Set(Variable("name", Str), Variable("email", Str)),
-          ComponentInstance(ComponentRef("Register"), Set.empty)
+          ComponentInstance(ComponentRef("Register"), Set.empty, Set.empty)
         ),
         Service(
           "GET",
@@ -139,9 +153,53 @@ ac
           Set(Variable("key", Str)),
           ComponentInstance(
             ComponentRef("GetAttendees"),
-            Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))))
+            Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))),
+            Set.empty)
         )
       )
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
+
+  it should "handle component instance aliases" in {
+    val input =
+      """
+cc
+  name SanitizeEmails
+  ci SanitizeEmail<email -> email1, sanitizedEmail -> sanitizedEmail1>
+  ci SanitizeEmail<email -> email2, sanitizedEmail -> sanitizedEmail2>
+
+ac
+  name SanitizeEmail
+  pre (email: String)
+  add (sanitizedEmail: String)
+"""
+    val model = Model(
+      Set.empty,
+      Set(
+        AtomicComponent("SanitizeEmail",
+                        Set.empty,
+                        Set(Variable("email", Str)),
+                        Set(Variable("sanitizedEmail", Str)),
+                        Set.empty),
+        CompositeComponent(
+          "SanitizeEmails",
+          Set.empty,
+          Seq(
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email1"),
+                                  Alias("sanitizedEmail", "sanitizedEmail1"))),
+            ComponentInstance(ComponentRef("SanitizeEmail"),
+                              Set.empty,
+                              Set(Alias("email", "email2"),
+                                  Alias("sanitizedEmail", "sanitizedEmail2")))
+          )
+        )
+      ),
+      Seq.empty
     )
     val parsedModel = ModelParser.parse(input)
     parsedModel shouldBe a[Right[_, _]]
