@@ -37,6 +37,23 @@ final case class ComponentContextVariableNameUnicityError(
 final case class EmptyCompositeComponentError(name: Identifier)
     extends ModelError
 
+final case class AliasSourceUnicityError(instanceParentType: Reference.Source,
+                                         instanceParentName: Identifier,
+                                         name: Identifier,
+                                         occurences: Int)
+    extends ModelError
+
+final case class AliasTargetUnicityError(instanceParentType: Reference.Source,
+                                         instanceParentName: Identifier,
+                                         name: Identifier,
+                                         occurences: Int)
+    extends ModelError
+
+final case class AliasSourceValidityError(instanceParentType: Reference.Source,
+                                          instanceParentName: Identifier,
+                                          aliasSource: Identifier)
+    extends ModelError
+
 sealed abstract trait ContextElement
 object ContextElement {
   final case object AtomicComponent extends ContextElement
