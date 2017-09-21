@@ -54,6 +54,11 @@ final case class AliasSourceValidityError(instanceParentType: Reference.Source,
                                           aliasSource: Identifier)
     extends ModelError
 
+final case class AliasTargetValidityError(instanceParentType: Reference.Source,
+                                          instanceParentName: Identifier,
+                                          aliasTarget: Identifier)
+    extends ModelError
+
 sealed abstract trait ContextElement
 object ContextElement {
   final case object AtomicComponent extends ContextElement
