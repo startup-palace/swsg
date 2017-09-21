@@ -26,7 +26,7 @@ final case object AliasSourceValidity extends Verification {
       ci: ComponentInstance): Seq[AliasSourceValidityError] = {
     val component = Reference.resolve(ci.component, components).get
     component match {
-      case AtomicComponent(_, _, add, pre, rem) => {
+      case AtomicComponent(_, _, pre, add, rem) => {
         val variables     = pre ++ add ++ rem
         val variableNames = variables.map(_.name)
         val sources       = ci.aliases.map(_.source)
