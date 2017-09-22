@@ -24,7 +24,7 @@ build:
   <<: *scala
   stage: build
   script:
-    - ./sbt test swsgJVM/assembly
+    - ./sbt swsgJVM/test swsgJVM/assembly swsgJS/fastOptJS
     - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
