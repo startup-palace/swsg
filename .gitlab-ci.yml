@@ -4,6 +4,7 @@ variables:
   COURSIER_VERSION: 1.0.0-RC11
   SCALA_VERSION: "2.12"
   JAR_NAME: "swsg"
+  NODE_VERSION: "8"
 
 stages:
   - build
@@ -24,7 +25,9 @@ build:
   <<: *scala
   stage: build
   script:
-    - ./sbt swsgJVM/test swsgJVM/assembly swsgJS/fastOptJS
+    - curl -sL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
+    - apt-get update && apt-get install -y nodejs
+    - ./sbt test swsgJVM/assembly swsgJS/fastOptJS
     - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"

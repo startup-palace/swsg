@@ -19,7 +19,8 @@ lazy val swsg = crossProject
       "-Xlint:-missing-interpolator"
     ),
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest"  % "3.0.4" % Test,
+      "org.scalatest" %%% "scalatest" % "3.0.4" % Test,
+      "com.chuusai"   %%% "shapeless" % "2.3.2",
       "org.parboiled" %%% "parboiled" % "2.1.4"
     ),
     scalafmtVersion in ThisBuild := "1.2.0",
