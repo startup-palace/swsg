@@ -31,7 +31,7 @@ lazy val swsg = crossProject
       "io.circe" %%% "circe-generic-extras",
       "io.circe" %%% "circe-parser"
     ).map(_ % circeVersion),
-    scalafmtVersion in ThisBuild := "1.2.0",
+    scalafmtVersion in ThisBuild := "1.3.0",
     scalafmtOnCompile in ThisBuild := true,
     scalafmtTestOnCompile in ThisBuild := true,
     ignoreErrors in (ThisBuild, scalafmt) := false,
