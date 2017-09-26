@@ -4,6 +4,7 @@ variables:
   COURSIER_VERSION: 1.0.0-RC11
   SCALA_VERSION: "2.12"
   JAR_NAME: "swsg"
+  NODE_VERSION: "8"
 
 stages:
   - build
@@ -20,19 +21,24 @@ stages:
     - java -version
     - javac -version
 
-fat_jar:
+build:
   <<: *scala
   stage: build
   script:
-    - ./sbt compile test assembly
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
+    - curl -sL https://deb.nodesource.com/setup_$NODE_VERSION.x | bash -
+    - apt-get update && apt-get install -y nodejs
+    - ./sbt test swsgJVM/assembly swsgJS/fastOptJS
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar --help
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
-      - project/project/
-      - project/target/
-      - target/
-      - target/scala-$SCALA_VERSION/$JAR_NAME.jar
+      #- project/project/
+      #- project/target/
+      #- js/target/
+      - js/target/scala-$SCALA_VERSION/$JAR_NAME-fastopt.js
+      - js/target/scala-$SCALA_VERSION/$JAR_NAME-fastopt.js.map
+      #- jvm/target/
+      - jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar
     expire_in: 15 day
   tags:
     - docker
@@ -41,9 +47,9 @@ check_example:
   <<: *scala
   stage: example
   dependencies:
-    - fat_jar
+    - build
   script:
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar check --model example/registration.model
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar check --model example/registration.model
   tags:
     - docker
 
@@ -51,7 +57,7 @@ gen_example:
   <<: *scala
   stage: example
   script:
-    - java -jar target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
