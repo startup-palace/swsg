@@ -39,6 +39,9 @@ final case object ModelInstances {
   implicit val encodeAlias: Encoder[Alias]       = deriveEncoder
   implicit val encodeComponentInstance: Encoder[ComponentInstance] =
     deriveEncoder
+  implicit val encodeAtomicComponent: Encoder[AtomicComponent] = deriveEncoder
+  implicit val encodeCompositeComponent: Encoder[CompositeComponent] =
+    deriveEncoder
   implicit val encodeComponent: Encoder[Component] = deriveEncoder
   implicit val encodeService: Encoder[Service]     = deriveEncoder
   implicit val encodeEntity: Encoder[Entity]       = deriveEncoder
