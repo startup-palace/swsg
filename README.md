@@ -27,9 +27,9 @@ java -jar swsg.jar gen --model example/registration.model --implementation examp
 
 - install Java (JRE/JDK 8)
 - run SBT: `./sbt`
-- compile: `compile`
-- run tests: `test`
-- generate a JAR: `assembly` (the JAR will be in `target/scala-2.12/swsg.jar`)
+- compile: `swsgJVM/compile`
+- run tests: `swsgJVM/test`
+- generate a JAR: `swsgJVM/assembly` (the JAR will be in `jvm/target/scala-2.12/swsg.jar`)
 
 ## License
 
