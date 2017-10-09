@@ -66,6 +66,21 @@ gen_example:
   tags:
     - docker
 
+gui:
+  stage: example
+  image: debian
+  script:
+    - mv js/target/scala-$SCALA_VERSION/$JAR_NAME-fastopt.js gui/
+    - mv js/target/scala-$SCALA_VERSION/$JAR_NAME-fastopt.js.map gui/
+    - sed -i "s/..\/js\/target\/scala-$SCALA_VERSION\/$JAR_NAME-fastopt.js/$JAR_NAME-fastopt.js/" gui/*.html
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
+    paths:
+      - gui/
+    expire_in: 15 day
+  tags:
+    - docker
+
 test_gen_example:
   image: composer
   stage: test_example

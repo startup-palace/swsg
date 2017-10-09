@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SWSG GUI</title>
+
+    <style>
+      .node > .label {
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="model" rows="5" cols="120"></textarea>
+    <button type="button" id="button">Run</button>
+
+    <script src="../js/target/scala-2.12/swsg-fastopt.js"></script>
+    <script src="https://cdn.jsdelivr.net/combine/npm/d3@3.5.17,npm/webcola@3.3.6/WebCola/cola.min.js,npm/greuler@0.5.5/dist/greuler.min.js"></script>
+    <div id="canvas" style="border: 1px black solid;"></div>
+    <script>
+      const button = document.getElementById("button");
+      const modelInput = document.getElementById("model");
+      button.addEventListener("click", update);
+
+      function update(e) {
+        const width = window.innerWidth || 1500;
+        const height = window.innerHeight || 500;
+
+        const input = modelInput.value;
+        const rawModel = swsg.parse(input);
+        const errors = JSON.parse(swsg.check(rawModel));
+        if (errors.length <= 0) {
+          const model = JSON.parse(swsg.modelToJson(rawModel));
+          console.log(model);
+
+          function getComponentId(name) {
+            return model.components.findIndex(c => c.name === name);
+          }
+
+          function getColor(nodeType) {
+            switch (nodeType) {
+              case "AtomicComponent":
+                return "blue";
+                break;
+              case "CompositeComponent":
+                return "green";
+                break;
+              default:
+                return "black";
+            }
+          }
+
+          const nodes = model.components.map(c => {
+            return { id: getComponentId(c.name), label: c.name, r: c.name.length * 3.8, fill: getColor(c.caseClassName) };
+          });
+
+          const links = model.components.filter(c => c.caseClassName === "CompositeComponent").map(cc => {
+            return cc.components.map(ci => ({ source: getComponentId(cc.name), target: getComponentId(ci.component) }));
+          }).reduce((x, y) => x.concat(y), []);
+
+          const instance = greuler({
+            target: "#canvas",
+            width,
+            height,
+            directed: true,
+            data: {
+              linkDistance: 100,
+              flowLayout: ["x", 150],
+              nodes,
+              links,
+            },
+          }).update();
+        } else {
+          console.log(errors);
+        }
+      }
+    </script>
+  </body>
+</html>
