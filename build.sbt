@@ -46,7 +46,7 @@ lazy val swsg = crossProject
   )
   .jvmSettings(
     libraryDependencies ++= Seq(
-      "com.github.pathikrit" %% "better-files"  % "3.1.0",
+      "com.github.pathikrit" %% "better-files"  % "3.2.0",
       "com.github.scopt"     %% "scopt"         % "3.7.0",
       "org.scala-js"         %% "scalajs-stubs" % scalaJSVersion % "provided"
     ),
