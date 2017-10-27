@@ -23,6 +23,8 @@ lazy val swsg = crossProject
       "-Xlint",
       "-Xlint:-missing-interpolator"
     ),
+    scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Xfatal-warnings")),
+    scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
     libraryDependencies ++= Seq(
       "org.scalatest" %%% "scalatest" % "3.0.4" % Test,
       "com.chuusai"   %%% "shapeless" % "2.3.2",
