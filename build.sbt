@@ -1,6 +1,8 @@
 name := "SWSG"
 
-scalaVersion := "2.12.4"
+lazy val scalaVer = "2.12.4"
+
+scalaVersion := scalaVer
 
 version := "0.1.0-SNAPSHOT"
 
@@ -11,6 +13,7 @@ lazy val root = project.in(file(".")).aggregate(js, jvm)
 lazy val swsg = crossProject
   .in(file("."))
   .settings(
+    scalaVersion := scalaVer,
     scalacOptions ++= Seq(
       "-unchecked",
       "-deprecation",
