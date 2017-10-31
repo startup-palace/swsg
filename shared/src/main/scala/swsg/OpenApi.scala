@@ -6,7 +6,7 @@ final case class OpenApi(
     openapi: String,
     `x-swsg-version`: String,
     components: Option[Components],
-    /*paths: Paths*/)
+    paths: Map[String, PathItem])
 
 final case object OpenApi {
   def fromJson(json: String): Either[io.circe.Error, OpenApi] = {
@@ -24,7 +24,9 @@ final case object OpenApi {
     }
   }
 
-  final case class Components(schemas: Option[Map[String, SchemaOrRef]])
+  final case class Components(
+    schemas: Option[Map[String, SchemaOrRef]],
+  )
 
   sealed abstract trait SchemaOrRef
   final case class Schema(
@@ -110,21 +112,114 @@ final case object OpenApi {
   final case class Discriminator(propertyName: String, mapping: Map[String, String])
   final case class ExternalDocumentation(description: String, url: String)
 
-  //final case class Paths()
+  final case class PathItem(
+    $ref: Option[String],
+    summary: Option[String],
+    description: Option[String],
+    get: Option[Operation],
+    put: Option[Operation],
+    post: Option[Operation],
+    delete: Option[Operation],
+    options: Option[Operation],
+    head: Option[Operation],
+    patch: Option[Operation],
+    trace: Option[Operation],
+    //servers: Option[Seq[Server]],
+    parameters: Option[Seq[ParameterOrRef]],
+  )
 
-  final case class Reference($ref: String) extends SchemaOrRef
+  sealed abstract trait ParameterOrRef
+  final case class Parameter(
+    name: String,
+    in: String,
+    description: Option[String],
+    required: Option[Boolean],
+    deprecated: Option[Boolean],
+    allowEmptyVal: Option[Boolean],
+    // simple scenarios
+    style: Option[String],
+    explode: Option[Boolean],
+    allowReserved: Option[Boolean],
+    schema: Option[SchemaOrRef],
+    //example: Option[io.circe.Json],
+    //examples: Option[Map[String, ExampleOrRef]],
+    // complex scenarios
+    content: Option[Map[String, MediaType]],
+  ) extends ParameterOrRef
+
+  final case class MediaType(
+    schema: Option[SchemaOrRef],
+    //example: Option[io.circe.Json],
+    //examples: Option[Map[String, ExampleOrRef]],
+    encoding: Option[Map[String, Encoding]],
+  )
+
+  final case class Encoding(
+    contentType: Option[String],
+    headers: Option[Map[String, HeaderOrRef]],
+    style: Option[String],
+    explode: Option[Boolean],
+    allowReserved: Option[Boolean],
+  )
+
+  final case class Operation(
+    tags: Option[Seq[String]],
+    summary: Option[String],
+    description: Option[String],
+    externalDocs: Option[ExternalDocumentation],
+    operationId: Option[String],
+    parameters: Option[Seq[ParameterOrRef]],
+    //requestBody: Option[RequestBody],
+    responses: Map[String, ResponseOrRef],
+    //callbacks: Option[Map[String, CallbackOrRef]],
+    deprecated: Option[Boolean],
+    //security: Option[Seq[SecurityRequirement]],
+    //servers: Option[Seq[Server]],
+  )
+
+  sealed abstract trait ResponseOrRef
+  final case class Response(
+    description: String,
+    headers: Option[Map[String, HeaderOrRef]],
+    content: Option[Map[String, MediaType]],
+    //links: Option[Map[String, LinkOrRef]],
+  ) extends ResponseOrRef
+
+  sealed abstract trait HeaderOrRef
+  final case class Header(
+    description: Option[String],
+    required: Option[Boolean],
+    deprecated: Option[Boolean],
+    allowEmptyVal: Option[Boolean],
+    // simple scenarios
+    style: Option[String],
+    explode: Option[Boolean],
+    allowReserved: Option[Boolean],
+    schema: Option[SchemaOrRef],
+    //example: Option[io.circe.Json],
+    //examples: Option[Map[String, ExampleOrRef]],
+    // complex scenarios
+    content: Map[String, MediaType],
+  ) extends HeaderOrRef
+
+  final case class Reference($ref: String)
+      extends SchemaOrRef
+      with ParameterOrRef
+      with ResponseOrRef
+      with HeaderOrRef
 }
 
 final case object OpenApiInstances {
   import io.circe.{Decoder, HCursor}
   import io.circe.generic.extras.Configuration
   import io.circe.generic.extras.semiauto.deriveDecoder
-  //import OpenApi._
 
   implicit val config: Configuration = Configuration.default
 
   implicit val decodeDiscriminator: Decoder[Discriminator] = deriveDecoder
   implicit val decodeExternalDocumentation: Decoder[ExternalDocumentation] = deriveDecoder
+  implicit val decodeMediaType: Decoder[MediaType] = deriveDecoder
+  implicit val decodeEncoding: Decoder[Encoding] = deriveDecoder
 
   implicit val decodeReference: Decoder[Reference] = deriveDecoder
   implicit val decodeSchema: Decoder[Schema] = deriveDecoder
@@ -138,6 +233,41 @@ final case object OpenApiInstances {
     }
   }
 
+  implicit val decodeParameter: Decoder[Parameter] = deriveDecoder
+
+  implicit val decodeParameterOrRef: Decoder[ParameterOrRef] = new Decoder[ParameterOrRef] {
+    final def apply(c: HCursor): Decoder.Result[ParameterOrRef] = {
+      decodeReference(c) match {
+        case Left(_) => decodeParameter(c)
+        case r @ _ => r
+      }
+    }
+  }
+
+  implicit val decodeResponse: Decoder[Response] = deriveDecoder
+
+  implicit val decodeResponseOrRef: Decoder[ResponseOrRef] = new Decoder[ResponseOrRef] {
+    final def apply(c: HCursor): Decoder.Result[ResponseOrRef] = {
+      decodeReference(c) match {
+        case Left(_) => decodeResponse(c)
+        case r @ _ => r
+      }
+    }
+  }
+
+  implicit val decodeHeader: Decoder[Header] = deriveDecoder
+
+  implicit val decodeHeaderOrRef: Decoder[HeaderOrRef] = new Decoder[HeaderOrRef] {
+    final def apply(c: HCursor): Decoder.Result[HeaderOrRef] = {
+      decodeReference(c) match {
+        case Left(_) => decodeHeader(c)
+        case r @ _ => r
+      }
+    }
+  }
+
   implicit val decodeComponents: Decoder[Components] = deriveDecoder
+  implicit val decodeOperation: Decoder[Operation] = deriveDecoder
+  implicit val decodePathItem: Decoder[PathItem] = deriveDecoder
   implicit val decodeOpenApi: Decoder[OpenApi] = deriveDecoder
 }
