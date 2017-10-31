@@ -62,7 +62,50 @@ final case object OpenApi {
     externalDocs: Option[ExternalDocumentation],
     example: Option[io.circe.Json],
     deprecated: Option[Boolean],
-  ) extends SchemaOrRef
+  ) extends SchemaOrRef {
+    override def toString: String = {
+      val fields = Map(
+        "title" -> title,
+        "multipleOf" -> multipleOf,
+        "maximum" -> maximum,
+        "exclusiveMaximum" -> exclusiveMaximum,
+        "minimum" -> minimum,
+        "exclusiveMinimum" -> exclusiveMinimum,
+        "maxLength" -> maxLength,
+        "minLength" -> minLength,
+        "pattern" -> pattern,
+        "maxItems" -> maxItems,
+        "minItems" -> minItems,
+        "uniqueItems" -> uniqueItems,
+        "maxProperties" -> maxProperties,
+        "minProperties" -> minProperties,
+        "required" -> required,
+        "enum" -> enum,
+        "type" -> `type`,
+        "allOf" -> allOf,
+        "oneOf" -> oneOf,
+        "anyOf" -> anyOf,
+        "not" -> not,
+        "items" -> items,
+        "properties" -> properties,
+        //"additionalProperties" -> additionalProperties,
+        "format" -> format,
+        "default" -> default,
+        "nullable" -> nullable,
+        "discriminator" -> discriminator,
+        "readOnly" -> readOnly,
+        "writeOnly" -> writeOnly,
+        "xml" -> xml,
+        "externalDocs" -> externalDocs,
+        "example" -> example,
+        "deprecated" -> deprecated,
+      ).toSeq.flatMap {
+        case (label, Some(value)) => Seq(s"$label = ${value.toString}")
+        case _ => Seq.empty
+      }.mkString(", ")
+      s"Schema($fields)"
+    }
+  }
 
   final case class Discriminator(propertyName: String, mapping: Map[String, String])
   final case class ExternalDocumentation(description: String, url: String)
