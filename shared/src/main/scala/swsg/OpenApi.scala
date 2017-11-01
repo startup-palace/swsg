@@ -2,6 +2,8 @@ package swsg
 
 import OpenApi._
 
+final case class Versions(openapi: String, `x-swsg-version`: String)
+
 final case class OpenApi(
     openapi: String,
     `x-swsg-version`: String,
@@ -9,19 +11,22 @@ final case class OpenApi(
     paths: Map[String, PathItem])
 
 final case object OpenApi {
-  def fromJson(json: String): Either[io.circe.Error, OpenApi] = {
-    import io.circe.parser.decode
-    import OpenApiInstances.decodeOpenApi
+  def fromJson(json: String): Either[Seq[io.circe.Error], OpenApi] = {
+    import cats.syntax.apply._
+    import cats.syntax.validated._
+    import io.circe.DecodingFailure
+    import io.circe.parser.decodeAccumulating
+    import OpenApiInstances.{decodeOpenApi, decodeVersions}
 
-    decode[OpenApi](json).flatMap { spec =>
-      if (spec.openapi.substring(0, 3) != "3.0") {
-          Left(io.circe.DecodingFailure("This tool only supports OpenAPI 3.0.x", List.empty))
-        }
-        else if (spec.`x-swsg-version`.substring(0, 3) != "1.0") {
-          Left(io.circe.DecodingFailure("This tool only supports SWSG 1.0.x", List.empty))
-        }
-        else Right(spec)
-    }
+    decodeAccumulating[Versions](json)
+      .andThen { versions =>
+        val openApiVersion = if (versions.openapi.substring(0, 3) == "3.0") true.validNel else DecodingFailure(s"This tool only supports OpenAPI 3.0.x (current is ${versions.openapi})", List.empty).invalidNel
+        val swsgVersion = if (versions.`x-swsg-version`.substring(0, 3) == "1.0") true.validNel else DecodingFailure(s"This tool only supports SWSG 1.0.x (current is ${versions.`x-swsg-version`})", List.empty).invalidNel
+        (openApiVersion, swsgVersion).mapN((_, _) => versions)
+      }
+      .andThen(_ => decodeAccumulating[OpenApi](json))
+      .leftMap(_.toList)
+      .toEither
   }
 
   final case class Components(
@@ -270,4 +275,5 @@ final case object OpenApiInstances {
   implicit val decodeOperation: Decoder[Operation] = deriveDecoder
   implicit val decodePathItem: Decoder[PathItem] = deriveDecoder
   implicit val decodeOpenApi: Decoder[OpenApi] = deriveDecoder
+  implicit val decodeVersions: Decoder[Versions] = deriveDecoder
 }
