@@ -6,7 +6,9 @@ scalaVersion := scalaVer
 
 version := "0.1.0-SNAPSHOT"
 
-lazy val circeVersion = "0.8.0"
+lazy val circeVersion = "0.9.0-M1"
+
+lazy val catsVersion = "1.0.0-MF"
 
 lazy val root = project.in(file(".")).aggregate(js, jvm)
 
@@ -21,7 +23,8 @@ lazy val swsg = crossProject
       "-Xfatal-warnings",
       "-Xfuture",
       "-Xlint",
-      "-Xlint:-missing-interpolator"
+      "-Xlint:-missing-interpolator",
+      "-Ypartial-unification"
     ),
     scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Xfatal-warnings")),
     scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
@@ -36,6 +39,11 @@ lazy val swsg = crossProject
       "io.circe" %%% "circe-generic-extras",
       "io.circe" %%% "circe-parser"
     ).map(_ % circeVersion),
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core",
+      "org.typelevel" %%% "cats-kernel",
+      "org.typelevel" %%% "cats-macros"
+    ).map(_ % catsVersion),
     scalafmtVersion in ThisBuild := "1.3.0",
     scalafmtOnCompile in ThisBuild := true,
     scalafmtTestOnCompile in ThisBuild := true,
