@@ -76,24 +76,33 @@ final case object ModelDecoderInstances {
   implicit val decodeEntityRef: Decoder[EntityRef] = deriveDecoder
   implicit val decodeSeqOf: Decoder[SeqOf] = deriveDecoder
 
+  val decodeScalarType: Decoder[Type] = new Decoder[Type] {
+    final def apply(c: HCursor): Decoder.Result[Type] = {
+      c.as[String] match {
+        case Right("Str") => Right(Str)
+        case Right("Boolean") => Right(Boolean)
+        case Right("Integer") => Right(Integer)
+        case Right("Float") => Right(Float)
+        case Right("Date") => Right(Date)
+        case Right("DateTime") => Right(DateTime)
+        case Right("Inherited") => Right(Inherited)
+        case Right(t) => Left(io.circe.DecodingFailure(s"Type '$t' is not supported", c.history))
+        case Left(e) => Left(e)
+      }
+    }
+  }
   implicit val decodeType: Decoder[Type] = new Decoder[Type] {
     final def apply(c: HCursor): Decoder.Result[Type] = {
-      decodeEntityRef(c) match {
-        case Left(_) => decodeSeqOf(c) match {
-          case Left(_) => c.as[String] match {
-            case Right("Str") => Right(Str)
-            case Right("Boolean") => Right(Boolean)
-            case Right("Integer") => Right(Integer)
-            case Right("Float") => Right(Float)
-            case Right("Date") => Right(Date)
-            case Right("DateTime") => Right(DateTime)
-            case Right("Inherited") => Right(Inherited)
-            case Right(t) => Left(io.circe.DecodingFailure(s"Type '$t' is not supported", c.history))
-            case Left(e) => Left(e)
-          }
-          case r @ _ => r
-        }
-        case r @ _ => r
+      val decoders = Seq(
+        decodeEntityRef,
+        decodeSeqOf,
+        decodeScalarType,
+      )
+
+      val init: Decoder.Result[Type] = Left(io.circe.DecodingFailure("Init", c.history))
+      decoders.foldLeft(init) {
+        case (acc @ Right(_), _) => acc
+        case (Left(_), cur) => cur(c)
       }
     }
   }
