@@ -240,8 +240,7 @@ final case object OpenApiExamples {
   }
 }
 """
-  val swsgSpec = """
-{
+  val swsgSpec = """{
   "openapi": "3.0.0",
   "x-swsg-version": "1.0",
   "info": {
@@ -317,6 +316,11 @@ final case object OpenApiExamples {
                 }
               }
             }
+          }
+        },
+        "x-swsg-ci": {
+          "component": {
+            "target": "GetAllPets"
           }
         }
       },
@@ -478,7 +482,102 @@ final case object OpenApiExamples {
           }
         }
       }
-    }
+    },
+    "x-swsg-cc": [
+      {
+        "name": "GetAllPets",
+        "components": [
+          {
+            "component": {
+              "target": "FetchAllPets"
+            }
+          },
+          {
+            "component": {
+              "target": "FilterPetsByTags"
+            }
+          },
+          {
+            "component": {
+              "target": "LimitPets"
+            }
+          }
+        ]
+      }
+    ],
+    "x-swsg-ac": [
+      {
+        "name": "FetchAllPets",
+        "add": [
+          {
+            "name": "pets",
+            "type": {
+              "item": {
+                "target": "Pet"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "FilterPetsByTags",
+        "pre": [
+          {
+            "name": "pets",
+            "type": {
+              "item": {
+                "target": "Pet"
+              }
+            }
+          },
+          {
+            "name": "tags",
+            "type": {
+              "item": "Str"
+            }
+          }
+        ],
+        "add": [
+          {
+            "name": "pets",
+            "type": {
+              "item": {
+                "target": "Pet"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "LimitPets",
+        "pre": [
+          {
+            "name": "pets",
+            "type": {
+              "item": {
+                "target": "Pet"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "type": {
+              "item": "Integer"
+            }
+          }
+        ],
+        "add": [
+          {
+            "name": "pets",
+            "type": {
+              "item": {
+                "target": "Pet"
+              }
+            }
+          }
+        ]
+      }
+    ]
   }
 }
 """

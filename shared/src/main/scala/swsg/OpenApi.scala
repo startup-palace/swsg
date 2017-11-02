@@ -33,6 +33,8 @@ final case object OpenApi {
 
   final case class Components(
     schemas: Option[Map[String, SchemaOrRef]],
+    `x-swsg-ac`: Option[Set[Model.AtomicComponent]],
+    `x-swsg-cc`: Option[Set[Model.CompositeComponent]],
   )
 
   sealed abstract trait SchemaOrRef
@@ -182,6 +184,7 @@ final case object OpenApi {
     deprecated: Option[Boolean],
     //security: Option[Seq[SecurityRequirement]],
     //servers: Option[Seq[Server]],
+    `x-swsg-ci`: Option[Model.ComponentInstance],
   )
 
   sealed abstract trait ResponseOrRef
@@ -220,6 +223,7 @@ final case object OpenApiInstances {
   import io.circe.{Decoder, HCursor}
   import io.circe.generic.extras.Configuration
   import io.circe.generic.extras.semiauto.deriveDecoder
+  import ModelDecoderInstances.{decodeAtomicComponent, decodeComponentInstance, decodeCompositeComponent}
 
   implicit val config: Configuration = Configuration.default
 

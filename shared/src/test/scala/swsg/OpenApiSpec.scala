@@ -12,7 +12,6 @@ class OpenApiSpec extends FlatSpec with Matchers {
   it should "parse a swsg spec" in {
     val spec = OpenApiExamples.swsgSpec
     val parsedSpec = OpenApi.fromJson(spec)
-    println(parsedSpec)
     parsedSpec shouldBe a[Right[_, _]]
   }
 }
