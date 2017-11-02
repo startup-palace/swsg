@@ -1,6 +1,6 @@
 import org.scalatest._
 import swsg._
-//import swsg.OpenApi._
+import swsg.Model._
 
 class OpenApiSpec extends FlatSpec with Matchers {
   "OpenAPI parser" should "not parse a standard spec" in {
@@ -13,5 +13,43 @@ class OpenApiSpec extends FlatSpec with Matchers {
     val spec = OpenApiExamples.swsgSpec
     val parsedSpec = OpenApi.fromJson(spec)
     parsedSpec shouldBe a[Right[_, _]]
+  }
+
+  it should "be able to output a SWSG model" in {
+    val spec = OpenApiExamples.swsgSpec
+    val model = Model(
+      Set.empty,
+      Set(
+        AtomicComponent(
+          "FetchAllPets",
+          Set.empty,
+          Set.empty,
+          Set(Variable("pets",SeqOf(EntityRef("Pet")))),
+          Set.empty),
+        AtomicComponent(
+          "FilterPetsByTags",
+          Set.empty,
+          Set(Variable("pets",SeqOf(EntityRef("Pet"))), Variable("tags",SeqOf(Str))),
+          Set(Variable("pets",SeqOf(EntityRef("Pet")))),
+          Set.empty),
+        AtomicComponent(
+          "LimitPets",
+          Set.empty,
+          Set(Variable("pets",SeqOf(EntityRef("Pet"))), Variable("limit",SeqOf(Integer))),
+          Set(Variable("pets",SeqOf(EntityRef("Pet")))),
+          Set.empty),
+        CompositeComponent(
+          "GetAllPets",
+          Set.empty,
+          List(
+            ComponentInstance(ComponentRef("FetchAllPets"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("FilterPetsByTags"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set.empty)))),
+      Seq.empty,
+    )
+
+    val parsedModel = OpenApi.fromJson(spec).flatMap(OpenApi.toModel)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
   }
 }

@@ -31,6 +31,37 @@ final case object OpenApi {
       .toEither
   }
 
+  def toModel(openapi: OpenApi): Either[Seq[String], Model] = {
+    import cats.data.ValidatedNel
+    import cats.syntax.apply._
+    import cats.syntax.validated._
+    import Model._
+
+    val computeEntities: ValidatedNel[String, Set[Entity]] = {
+      Set.empty.valid // TODO
+    }
+
+    val computeComponents: ValidatedNel[String, Set[Component]] = {
+      openapi.components
+        .map { c =>
+          val acs = c.`x-swsg-ac`.getOrElse(Set.empty)
+          val ccs = c.`x-swsg-cc`.getOrElse(Set.empty)
+          val cs: Set[Component] = acs ++ ccs
+          cs
+        }
+        .getOrElse(Set.empty).validNel
+    }
+
+    val computeServices: ValidatedNel[String, Seq[Service]] = {
+      Seq.empty.valid // TODO
+    }
+
+    (computeEntities, computeComponents, computeServices)
+      .mapN(Model.apply)
+      .leftMap(_.toList)
+      .toEither
+  }
+
   final case class Components(
     schemas: Option[Map[String, SchemaOrRef]],
     `x-swsg-ac`: Option[Set[Model.AtomicComponent]],
