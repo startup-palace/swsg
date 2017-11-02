@@ -12,16 +12,18 @@ final case class OpenApi(
 
 final case object OpenApi {
   def fromJson(json: String): Either[Seq[io.circe.Error], OpenApi] = {
+    import cats.data.Validated
     import cats.syntax.apply._
-    import cats.syntax.validated._
     import io.circe.DecodingFailure
     import io.circe.parser.decodeAccumulating
     import OpenApiInstances.{decodeOpenApi, decodeVersions}
 
     decodeAccumulating[Versions](json)
       .andThen { versions =>
-        val openApiVersion = if (versions.openapi.substring(0, 3) == "3.0") true.validNel else DecodingFailure(s"This tool only supports OpenAPI 3.0.x (current is ${versions.openapi})", List.empty).invalidNel
-        val swsgVersion = if (versions.`x-swsg-version`.substring(0, 3) == "1.0") true.validNel else DecodingFailure(s"This tool only supports SWSG 1.0.x (current is ${versions.`x-swsg-version`})", List.empty).invalidNel
+        lazy val openApiVersionError = DecodingFailure(s"This tool only supports OpenAPI 3.0.x (current is ${versions.openapi})", List.empty)
+        val openApiVersion = Validated.condNel(versions.openapi.substring(0, 3) == "3.0", true, openApiVersionError)
+        val swsgVersionError = DecodingFailure(s"This tool only supports SWSG 1.0.x (current is ${versions.`x-swsg-version`})", List.empty)
+        val swsgVersion = Validated.condNel(versions.`x-swsg-version`.substring(0, 3) == "1.0", true, swsgVersionError)
         (openApiVersion, swsgVersion).mapN((_, _) => versions)
       }
       .andThen(_ => decodeAccumulating[OpenApi](json))
