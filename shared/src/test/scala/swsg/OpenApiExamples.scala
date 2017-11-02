@@ -512,8 +512,8 @@ final case object OpenApiExamples {
           {
             "name": "pets",
             "type": {
-              "item": {
-                "target": "Pet"
+              "seqOf": {
+                "entity": "Pet"
               }
             }
           }
@@ -525,15 +525,15 @@ final case object OpenApiExamples {
           {
             "name": "pets",
             "type": {
-              "item": {
-                "target": "Pet"
+              "seqOf": {
+                "entity": "Pet"
               }
             }
           },
           {
             "name": "tags",
             "type": {
-              "item": "Str"
+              "seqOf": "Str"
             }
           }
         ],
@@ -541,8 +541,8 @@ final case object OpenApiExamples {
           {
             "name": "pets",
             "type": {
-              "item": {
-                "target": "Pet"
+              "seqOf": {
+                "entity": "Pet"
               }
             }
           }
@@ -554,15 +554,15 @@ final case object OpenApiExamples {
           {
             "name": "pets",
             "type": {
-              "item": {
-                "target": "Pet"
+              "seqOf": {
+                "entity": "Pet"
               }
             }
           },
           {
             "name": "limit",
             "type": {
-              "item": "Integer"
+              "seqOf": "Integer"
             }
           }
         ],
@@ -570,8 +570,8 @@ final case object OpenApiExamples {
           {
             "name": "pets",
             "type": {
-              "item": {
-                "target": "Pet"
+              "seqOf": {
+                "entity": "Pet"
               }
             }
           }

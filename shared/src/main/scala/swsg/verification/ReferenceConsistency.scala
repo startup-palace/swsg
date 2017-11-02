@@ -52,7 +52,7 @@ final case object EntityRefConsistency extends Verification {
         (r, Reference.resolve(r._3, model.entities).isDefined)
       }
     checkedReferences.filter(!_._2).map(_._1).map { cr =>
-      BrokenReferenceError(cr._1, cr._2, Reference.Entity, cr._3.target)
+      BrokenReferenceError(cr._1, cr._2, Reference.Entity, cr._3.entity)
     }
   }
 

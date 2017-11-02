@@ -26,8 +26,8 @@ final case object Model {
   final case object Float                        extends Type
   final case object Date                         extends Type
   final case object DateTime                     extends Type
-  final case class EntityRef(target: Identifier) extends Type
-  final case class SeqOf(item: Type)             extends Type
+  final case class EntityRef(entity: Identifier) extends Type
+  final case class SeqOf(seqOf: Type)            extends Type
   final case object Inherited                    extends Type
 
   final case class Entity(name: Identifier, attributes: Set[Variable])
