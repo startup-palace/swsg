@@ -42,14 +42,16 @@ final case object OpenApi {
     }
 
     val computeComponents: ValidatedNel[String, Set[Component]] = {
-      openapi.components
+      openapi
+        .components
         .map { c =>
           val acs = c.`x-swsg-ac`.getOrElse(Set.empty)
           val ccs = c.`x-swsg-cc`.getOrElse(Set.empty)
           val cs: Set[Component] = acs ++ ccs
           cs
         }
-        .getOrElse(Set.empty).validNel
+        .getOrElse(Set.empty)
+        .validNel
     }
 
     val computeServices: ValidatedNel[String, Seq[Service]] = {
