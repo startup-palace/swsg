@@ -86,7 +86,7 @@ final case object OpenApi {
     uniqueItems: Option[Boolean],
     maxProperties: Option[Int],
     minProperties: Option[Int],
-    required: Option[Seq[String]],
+    required: Option[Set[String]],
     enum: Option[Seq[io.circe.Json]],
     `type`: Option[String],
     allOf: Option[Seq[SchemaOrRef]],
