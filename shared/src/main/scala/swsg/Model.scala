@@ -28,6 +28,7 @@ final case object Model {
   final case object DateTime                     extends Type
   final case class EntityRef(entity: Identifier) extends Type
   final case class SeqOf(seqOf: Type)            extends Type
+  final case class OptionOf(optionOf: Type)      extends Type
   final case object Inherited                    extends Type
 
   final case class Entity(name: Identifier, attributes: Set[Variable])
@@ -75,6 +76,7 @@ final case object ModelDecoderInstances {
 
   implicit val decodeEntityRef: Decoder[EntityRef] = deriveDecoder
   implicit val decodeSeqOf: Decoder[SeqOf] = deriveDecoder
+  implicit val decodeOptionOf: Decoder[OptionOf] = deriveDecoder
 
   val decodeScalarType: Decoder[Type] = new Decoder[Type] {
     final def apply(c: HCursor): Decoder.Result[Type] = {
@@ -96,6 +98,7 @@ final case object ModelDecoderInstances {
       val decoders = Seq(
         decodeEntityRef,
         decodeSeqOf,
+        decodeOptionOf,
         decodeScalarType,
       )
 
