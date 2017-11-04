@@ -38,7 +38,97 @@ final case object OpenApi {
     import Model._
 
     val computeEntities: ValidatedNel[String, Set[Entity]] = {
-      Set.empty.valid // TODO
+      import cats.instances.vector._
+      import cats.syntax.traverse._
+
+      final object SchemaHasProps {
+        def unapply(s: Schema): Option[(Map[String, SchemaOrRef], Set[String])] = {
+          s.properties.map(props => (props, s.required.getOrElse(Set.empty)))
+        }
+      }
+      final object SchemaHasType {
+        def unapply(s: Schema): Option[(String, Option[String])] = {
+          s.`type`.map(t => (t, s.format))
+        }
+      }
+      final object SchemaHasAllOf {
+        def unapply(s: Schema): Option[Seq[SchemaOrRef]] = {
+          s.allOf
+        }
+      }
+
+      def toSwsgType(t: String): ValidatedNel[String, Type] = t match {
+        case "string" => Str.valid
+        case "boolean" => Boolean.valid
+        case "number" => Float.valid
+        case "integer" => Integer.valid
+        case t => s"Type '$t' is not supported".invalidNel
+      }
+
+      @annotation.tailrec
+      def resolveReference(schemas: Map[String, SchemaOrRef])(reference: String): ValidatedNel[String, Schema] = {
+        reference.split("/").toList match {
+          case "#" :: "components" :: "schemas" :: name :: Nil => schemas.get(name) match {
+            case Some(s: Schema) => s.validNel
+            case Some(ref: Reference) => resolveReference(schemas)(ref.$ref)
+            case None => s"Schema '$name' is not defined".invalidNel
+          }
+          case _ => s"Cannot resolve reference '$reference'".invalidNel
+        }
+      }
+
+      def flattenSchemas(allSchemas: Map[String, SchemaOrRef])(path: Seq[String], schemas: Seq[SchemaOrRef]): ValidatedNel[String, Schema] = {
+        val resolved: Seq[ValidatedNel[String, Schema]] = schemas.map {
+          case Reference(ref) => resolveReference(allSchemas)(ref)
+          case s: Schema => s.valid
+        }
+
+        resolved
+          .toVector
+          .sequence
+          .map(_.foldLeft(Schema.empty) {
+            case (acc, cur) => acc merge cur
+          })
+      }
+
+      def computeSchema(schemas: Map[String, SchemaOrRef])(path: Seq[String], schema: SchemaOrRef): ValidatedNel[String, Set[Variable]] = schema match {
+        case Reference(ref) => s"References are not supported (${path.mkString(" -> ")})".invalidNel
+        case SchemaHasAllOf(allOf) => {
+          flattenSchemas(schemas)(path, allOf)
+            .andThen(s => computeSchema(schemas)(path, s))
+        }
+        case SchemaHasProps(properties, required) => {
+          properties
+            .toVector
+            .map {
+              case (name, SchemaHasType(t, format)) => toSwsgType(t).map { t =>
+                val computedType = if (required.contains(name)) t else OptionOf(t)
+                Variable(name, computedType)
+              }
+              case (name, _) => s"Type of ${(path :+ name).mkString(" -> ")} is a schema which is not supported".invalidNel
+            }
+            .sequence
+            .map(_.toSet)
+        }
+        case _ => s"The schema of '${path.mkString(" -> ")}' is not supported".invalidNel
+      }
+
+      def computeEntity(schemas: Map[String, SchemaOrRef])(name: String, schema: SchemaOrRef): ValidatedNel[String, Entity] = {
+        computeSchema(schemas)(Seq(name), schema).map(attrs => Entity(name, attrs))
+      }
+
+      val schemas: Map[String, SchemaOrRef] = openapi
+        .components
+        .map(_.schemas.getOrElse(Map.empty))
+        .getOrElse(Map.empty)
+
+      val computedEntities: Vector[ValidatedNel[String, Entity]] = schemas
+        .toVector
+        .map(s => computeEntity(schemas)(s._1, s._2))
+
+      computedEntities
+        .sequence
+        .map(_.toSet)
     }
 
     val computeComponents: ValidatedNel[String, Set[Component]] = {
@@ -107,6 +197,44 @@ final case object OpenApi {
     example: Option[io.circe.Json],
     deprecated: Option[Boolean],
   ) extends SchemaOrRef {
+    def merge(s2: Schema): Schema = {
+      Schema(
+        s2.title.orElse(this.title),
+        s2.multipleOf.orElse(this.multipleOf),
+        s2.maximum.orElse(this.maximum),
+        s2.exclusiveMaximum.orElse(this.exclusiveMaximum),
+        s2.minimum.orElse(this.minimum),
+        s2.exclusiveMinimum.orElse(this.exclusiveMinimum),
+        s2.maxLength.orElse(this.maxLength),
+        s2.minLength.orElse(this.minLength),
+        s2.pattern.orElse(this.pattern),
+        s2.maxItems.orElse(this.maxItems),
+        s2.minItems.orElse(this.minItems),
+        s2.uniqueItems.orElse(this.uniqueItems),
+        s2.maxProperties.orElse(this.maxProperties),
+        s2.minProperties.orElse(this.minProperties),
+        this.required.map(p1 => p1 ++ s2.required.getOrElse(Set.empty)).orElse(s2.required),
+        this.enum.map(p1 => p1 ++ s2.enum.getOrElse(Seq.empty)).orElse(s2.enum),
+        s2.`type`.orElse(this.`type`),
+        this.allOf.map(p1 => p1 ++ s2.allOf.getOrElse(Seq.empty)).orElse(s2.allOf),
+        this.oneOf.map(p1 => p1 ++ s2.oneOf.getOrElse(Seq.empty)).orElse(s2.oneOf),
+        this.anyOf.map(p1 => p1 ++ s2.anyOf.getOrElse(Seq.empty)).orElse(s2.anyOf),
+        this.not.map(p1 => p1 ++ s2.not.getOrElse(Seq.empty)).orElse(s2.not),
+        this.items.map(p1 => p1 merge s2.items.getOrElse(Schema.empty)).orElse(s2.items),
+        this.properties.map(p1 => p1 ++ s2.properties.getOrElse(Map.empty)).orElse(s2.properties),
+        s2.format.orElse(this.format),
+        s2.default.orElse(this.default),
+        s2.nullable.orElse(this.nullable),
+        s2.discriminator.orElse(this.discriminator),
+        s2.readOnly.orElse(this.readOnly),
+        s2.writeOnly.orElse(this.writeOnly),
+        s2.xml.orElse(this.xml),
+        s2.externalDocs.orElse(this.externalDocs),
+        s2.example.orElse(this.example),
+        s2.deprecated.orElse(this.deprecated),
+      )
+    }
+
     override def toString: String = {
       val fields = Map(
         "title" -> title,
@@ -149,6 +277,9 @@ final case object OpenApi {
       }.mkString(", ")
       s"Schema($fields)"
     }
+  }
+  final case object Schema {
+    lazy val empty = Schema(None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
   }
 
   final case class Discriminator(propertyName: String, mapping: Map[String, String])

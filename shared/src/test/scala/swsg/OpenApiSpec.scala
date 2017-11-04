@@ -18,7 +18,24 @@ class OpenApiSpec extends FlatSpec with Matchers {
   it should "be able to output a SWSG model" in {
     val spec = OpenApiExamples.swsgSpec
     val model = Model(
-      Set.empty,
+      Set(
+        Entity(
+          "Pet",
+          Set(
+            Variable("name", Str),
+            Variable("tag", OptionOf(Str)),
+            Variable("id", Integer))),
+        Entity(
+          "NewPet",
+          Set(
+            Variable("name", Str),
+            Variable("tag", OptionOf(Str)))),
+        Entity(
+          "Error",
+          Set(
+            Variable("code", Integer),
+            Variable("message", Str))),
+      ),
       Set(
         AtomicComponent(
           "FetchAllPets",
