@@ -12,7 +12,7 @@ declare -a scalac_args
 declare -a sbt_commands
 declare java_cmd=java
 declare java_version
-declare init_sbt_version="1.0.2"
+declare init_sbt_version="1.0.3"
 
 declare SCRIPT=$0
 while [ -h "$SCRIPT" ] ; do
@@ -117,6 +117,21 @@ get_mem_opts () {
   fi
 }
 
+get_gc_opts () {
+  local older_than_9="$(echo "$java_version < 9" | bc)"
+
+  if [[ "$older_than_9" == "1" ]]; then
+    # don't need to worry about gc
+    echo ""
+  elif [[ "${JAVA_OPTS}" =~ Use.*GC ]] || [[ "${JAVA_TOOL_OPTIONS}" =~ Use.*GC ]] || [[ "${SBT_OPTS}" =~ Use.*GC ]] ; then
+    # GC arg has been passed in - don't change
+    echo ""
+  else
+    # Java 9+ so revert to old
+    echo "-XX:+UseParallelGC"
+  fi
+}
+
 require_arg () {
   local type="$1"
   local opt="$2"
@@ -189,13 +204,14 @@ syncPreloaded() {
 checkJava() {
   local required_version="$1"
   # Now check to see if it's a good enough version
+  local good_enough="$(echo "$java_version >= $required_version" | bc)"
   if [[ "$java_version" == "" ]]; then
     echo
     echo No java installations was detected.
     echo Please go to http://www.java.com/getjava/ and download
     echo
     exit 1
-  elif [[ "$java_version" < "$required_version" ]]; then
+  elif [[ "$good_enough" != "1" ]]; then
     echo
     echo The java installation you have is not up to date
     echo $script_name requires at least version $required_version+, you have
@@ -209,7 +225,8 @@ checkJava() {
 }
 
 copyRt() {
-  if [[ "$java_version" == "9" ]]; then
+  local at_least_9="$(echo "$java_version >= 9" | bc)"
+  if [[ "$at_least_9" == "1" ]]; then
     rtexport=$(rt_export_file)
     java9_ext=$("$java_cmd" ${JAVA_OPTS} ${SBT_OPTS:-$default_sbt_opts} ${java_args[@]} \
       -jar "$rtexport" --rt-ext-dir)
@@ -260,6 +277,7 @@ run() {
   # run sbt
   execRunner "$java_cmd" \
     $(get_mem_opts $sbt_mem) \
+    $(get_gc_opts) \
     ${JAVA_OPTS} \
     ${SBT_OPTS:-$default_sbt_opts} \
     ${java_args[@]} \

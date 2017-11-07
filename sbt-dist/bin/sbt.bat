@@ -1,12 +1,12 @@
 @REM SBT launcher script
-@REM 
+@REM
 @REM Environment:
 @REM JAVA_HOME - location of a JDK home dir (mandatory)
 @REM SBT_OPTS  - JVM options (optional)
 @REM Configuration:
 @REM sbtconfig.txt found in the SBT_HOME.
 
-@REM   ZOMG! We need delayed expansion to build up CFG_OPTS later 
+@REM   ZOMG! We need delayed expansion to build up CFG_OPTS later
 @setlocal enabledelayedexpansion
 
 @echo off
@@ -53,7 +53,7 @@ rem We use the value of the JAVA_OPTS environment variable if defined, rather th
 set _JAVA_OPTS=%JAVA_OPTS%
 if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 
-set INIT_SBT_VERSION="1.0.2"
+set INIT_SBT_VERSION="1.0.3"
 
 :args_loop
 if "%~1" == "" goto args_end
@@ -141,6 +141,13 @@ if /I "%JAVA_VERSION%" GEQ "9" (
     "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "%rtexport%" "%java9_rt%"
   )
   set _JAVA_OPTS=!_JAVA_OPTS! -Dscala.ext.dirs="%java9_ext%"
+
+  rem check to see if a GC has been set in the opts
+  echo !_JAVA_OPTS! | findstr /r "Use.*GC" >nul
+  if ERRORLEVEL 1 (
+    rem don't have a GC set - revert to old GC
+    set _JAVA_OPTS=!_JAVA_OPTS! -XX:+UseParallelGC
+  )
 )
 exit /B 0
 
