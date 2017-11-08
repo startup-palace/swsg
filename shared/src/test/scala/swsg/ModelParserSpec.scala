@@ -31,6 +31,7 @@ s
   method GET
   path /
   param query stuff: Seq(String)
+  param query whatever: Option(String)
   ci Home
 s
   method POST
@@ -142,6 +143,7 @@ ac
           "/",
           Set(
             ServiceParameter(Query, Variable("stuff", SeqOf(Str))),
+            ServiceParameter(Query, Variable("whatever", OptionOf(Str))),
           ),
           ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
         ),

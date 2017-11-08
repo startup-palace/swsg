@@ -137,7 +137,7 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Type
   def Type: Rule1[Model.Type] = rule {
-    SeqOf | ScalarType
+    SeqOf | OptionOf | ScalarType
   }
   val validTypes: Map[String, Model.Type] = Map(
     "Str"      -> Model.Str,
@@ -156,6 +156,9 @@ case class ModelParser(input: ParserInput) extends Parser {
   }
   def SeqOf: Rule1[Model.Type] = rule {
     "Seq(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.SeqOf(t))
+  }
+  def OptionOf: Rule1[Model.Type] = rule {
+    "Option(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.OptionOf(t))
   }
   def Variable: Rule1[Model.Variable] = rule {
     (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
