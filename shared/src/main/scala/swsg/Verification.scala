@@ -23,6 +23,7 @@ final case object ConsistencyVerification extends AutoVerification {
       EntityNameUnicity, // Entity name uniqueness
       AttributeNameUnicity, // Same entity’s attributes name uniqueness
       ServiceParameterNameUnicity,
+      ServiceBodyUnicity,
       ReferenceConsistency
     ),
     Set(

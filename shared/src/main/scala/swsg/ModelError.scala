@@ -20,6 +20,10 @@ final case class ServiceParameterNameUnicityError(serviceName: Identifier,
                                                   occurences: Int)
     extends ModelError
 
+final case class ServiceBodyUnicityError(serviceName: Identifier,
+                                         occurences: Int)
+    extends ModelError
+
 final case class BrokenReferenceError(
     sourceType: Reference.Source,
     sourceName: Identifier,
