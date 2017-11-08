@@ -33,6 +33,11 @@ final case object ModelInstances {
       final def apply(a: ComponentRef): Json = Json.fromString(a.target)
     }
 
+  implicit val encodeParameterLocation: Encoder[ParameterLocation] =
+    new Encoder[ParameterLocation] {
+      final def apply(a: ParameterLocation): Json = Json.fromString(a.toString)
+    }
+
   implicit val encodeVariable: Encoder[Variable] = deriveEncoder
   implicit val encodeTerm: Encoder[Term]         = deriveEncoder
   implicit val encodeBinding: Encoder[Binding]   = deriveEncoder
@@ -42,8 +47,9 @@ final case object ModelInstances {
   implicit val encodeAtomicComponent: Encoder[AtomicComponent] = deriveEncoder
   implicit val encodeCompositeComponent: Encoder[CompositeComponent] =
     deriveEncoder
-  implicit val encodeComponent: Encoder[Component] = deriveEncoder
-  implicit val encodeService: Encoder[Service]     = deriveEncoder
-  implicit val encodeEntity: Encoder[Entity]       = deriveEncoder
-  implicit val encodeModel: Encoder[Model]         = deriveEncoder
+  implicit val encodeComponent: Encoder[Component]               = deriveEncoder
+  implicit val encodeServiceParameter: Encoder[ServiceParameter] = deriveEncoder
+  implicit val encodeService: Encoder[Service]                   = deriveEncoder
+  implicit val encodeEntity: Encoder[Entity]                     = deriveEncoder
+  implicit val encodeModel: Encoder[Model]                       = deriveEncoder
 }

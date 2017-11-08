@@ -4,13 +4,14 @@ e
 
 s
   method POST
-  url \/register\/(?<name>[^\/]+)\/(?<email>[^\/]+)
-  params (name: String, email: String)
+  path /register/{name}/{email}
+  param path name: String
+  param path email: String
   ci Registration
 s
   method GET
-  url \/attendees\/(?<key>[^\/]+)
-  params (key: String)
+  path /attendees/{key}
+  param path key: String
   ci GetAttendees(apiKey = "mykey")
 
 cc

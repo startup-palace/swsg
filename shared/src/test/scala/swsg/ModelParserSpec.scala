@@ -29,18 +29,19 @@ cc
 
 s
   method GET
-  url \/
+  path /
   ci Home
 s
   method POST
-  url \/register\/(?<name>[^/]+)\/(?<email>[^/]+)
-  params (name: String, email: String)
+  path /register/{name}/{email}
+  param path name: String
+  param path email: String
   ci Register
 
 s
   method GET
-  url \/attendees\/(?<key>[^/]+)
-  params (key: String)
+  path /attendees/{key}
+  param path key: String
   ci GetAttendees(apiKey = "myKey")
 
 ac
@@ -137,20 +138,23 @@ ac
       Seq(
         Service(
           "GET",
-          "\\/",
+          "/",
           Set.empty,
           ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
         ),
         Service(
           "POST",
-          "\\/register\\/(?<name>[^/]+)\\/(?<email>[^/]+)",
-          Set(Variable("name", Str), Variable("email", Str)),
+          "/register/{name}/{email}",
+          Set(
+            ServiceParameter(Path, Variable("name", Str)),
+            ServiceParameter(Path, Variable("email", Str)),
+          ),
           ComponentInstance(ComponentRef("Register"), Set.empty, Set.empty)
         ),
         Service(
           "GET",
-          "\\/attendees\\/(?<key>[^/]+)",
-          Set(Variable("key", Str)),
+          "/attendees/{key}",
+          Set(ServiceParameter(Path, Variable("key", Str))),
           ComponentInstance(
             ComponentRef("GetAttendees"),
             Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))),

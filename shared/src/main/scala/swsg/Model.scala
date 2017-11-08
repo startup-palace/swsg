@@ -17,7 +17,7 @@ final case class Model(entities: Set[Entity],
 final case object Model {
   type Identifier = String
   type Method     = String
-  type Url        = String
+  type Path       = String
 
   sealed abstract trait Type
   final case object Str                          extends Type
@@ -60,11 +60,20 @@ final case object Model {
   final case class Constant(`type`: Type, value: Any)       extends Term
 
   final case class Service(method: Method,
-                           url: Url,
-                           params: Set[Variable],
+                           path: Path,
+                           params: Set[ServiceParameter],
                            component: ComponentInstance) {
-    lazy val name: String = s"${method} ${url}"
+    lazy val name: String = s"${method} ${path}"
   }
+
+  final case class ServiceParameter(location: ParameterLocation, variable: Variable)
+
+  sealed abstract trait ParameterLocation
+  final case object Query extends ParameterLocation
+  final case object Header extends ParameterLocation
+  final case object Path extends ParameterLocation
+  final case object Cookie extends ParameterLocation
+  final case object Body extends ParameterLocation
 }
 
 final case object ModelDecoderInstances {

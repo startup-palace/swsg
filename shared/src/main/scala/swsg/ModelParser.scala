@@ -45,7 +45,7 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Service
   def Service = rule {
-    's' ~ Method ~ Url ~ Params ~ Ci ~> ((m,
+    's' ~ Method ~ Path ~ ServiceParams ~ Ci ~> ((m,
                                           u,
                                           p,
                                           c) => Model.Service(m, u, p.toSet, c))
@@ -54,15 +54,32 @@ case class ModelParser(input: ParserInput) extends Parser {
     LineSeparator ~ Indentation ~ "method" ~ WhitespaceSeparator ~ capture(
       oneOrMore(CharPredicate.UpperAlpha))
   }
-  def Url: Rule1[String] = rule {
-    LineSeparator ~ Indentation ~ "url" ~ WhitespaceSeparator ~ capture(
+  def Path: Rule1[String] = rule {
+    LineSeparator ~ Indentation ~ "path" ~ WhitespaceSeparator ~ capture(
       oneOrMore(CharPredicate.All -- '\n'))
   }
-  def Params: Rule1[Seq[Model.Variable]] = rule {
-    optional(
-      LineSeparator ~ Indentation ~ "params" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
-        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
-        (ps: Option[Seq[Model.Variable]]) => ps.getOrElse(Seq.empty))
+  def ServiceParams = rule {
+    zeroOrMore(ServiceParameter)
+  }
+  def ServiceParameter: Rule1[Model.ServiceParameter] = rule {
+    LineSeparator ~ Indentation ~ "param" ~ WhitespaceSeparator ~ (ParameterLocation ~ WhitespaceSeparator ~ Variable) ~> (
+      (location: Model.ParameterLocation, variable: Model.Variable) =>
+        Model.ServiceParameter(location, variable))
+  }
+  val validLocations: Map[String, Model.ParameterLocation] = Map(
+    "query"  -> Model.Query,
+    "header" -> Model.Header,
+    "path"   -> Model.Path,
+    "cookie" -> Model.Cookie,
+    "body"   -> Model.Body,
+  )
+  def ParameterLocation: Rule1[Model.ParameterLocation] = rule {
+    capture(oneOrMore(CharPredicate.Alpha)) ~> ((location: String) =>
+      validLocations
+        .get(location)
+        .toRight(new RuntimeException(s"'$location' must be one of ${validLocations.keys.mkString(", ")}"))
+        .toTry
+        .get)
   }
   def Ci: Rule1[Model.ComponentInstance] = rule {
     LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings ~ Aliases) ~> (
@@ -81,6 +98,12 @@ case class ModelParser(input: ParserInput) extends Parser {
          add,
          rem) =>
           Model.AtomicComponent(n, p.toSet, pre.toSet, add.toSet, rem.toSet))
+  }
+  def Params: Rule1[Seq[Model.Variable]] = rule {
+    optional(
+      LineSeparator ~ Indentation ~ "params" ~ WhitespaceSeparator ~ '(' ~ oneOrMore(
+        Variable).separatedBy(ParameterSeparator) ~ ')') ~> (
+        (ps: Option[Seq[Model.Variable]]) => ps.getOrElse(Seq.empty))
   }
   def Pre: Rule1[Seq[Model.Variable]] = rule {
     optional(

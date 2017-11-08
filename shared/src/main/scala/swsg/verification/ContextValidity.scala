@@ -29,7 +29,7 @@ final case object ContextValidity extends Verification {
       (newCtx, componentsWithContext :+ componentWithContext)
     }
 
-    val initialContext = seq._1.params
+    val initialContext = seq._1.params.map(_.variable)
     val componentsWithContext = seq._2
       .foldLeft((initialContext, Seq.empty[AtomicComponentWithContext]))(
         computeContext)
