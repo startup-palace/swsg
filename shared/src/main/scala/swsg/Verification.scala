@@ -34,7 +34,8 @@ final case object ConsistencyVerification extends AutoVerification {
       AliasSourceUnicity,
       AliasTargetUnicity,
       AliasSourceValidity,
-      AliasTargetValidity
+      AliasTargetValidity,
+      ServicePathValidity
     ),
     Set(
       ComponentContextImmutability, // Context immutability

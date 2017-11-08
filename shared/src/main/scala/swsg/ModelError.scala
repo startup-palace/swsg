@@ -24,6 +24,14 @@ final case class ServiceBodyUnicityError(serviceName: Identifier,
                                          occurences: Int)
     extends ModelError
 
+final case class MissingParameterInPathError(serviceName: Identifier,
+                                             parameterName: Identifier)
+    extends ModelError
+
+final case class UnknownParameterInPathError(serviceName: Identifier,
+                                             parameterName: Identifier)
+    extends ModelError
+
 final case class BrokenReferenceError(
     sourceType: Reference.Source,
     sourceName: Identifier,

@@ -15,7 +15,7 @@ class ContextVariablesTypeValiditySpec extends FlatSpec with Matchers {
       ),
       Seq(
         Service("GET",
-                "/",
+                "/{v4}",
                 Set(ServiceParameter(Path, Variable("v4", Inherited))),
                 ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty)))
     )
@@ -23,7 +23,7 @@ class ContextVariablesTypeValiditySpec extends FlatSpec with Matchers {
       InheritedTypeInContext(ContextElement.AtomicComponent, "c1", "v1"),
       InheritedTypeInContext(ContextElement.AtomicComponent, "c1", "v2"),
       InheritedTypeInContext(ContextElement.AtomicComponent, "c1", "v3"),
-      InheritedTypeInContext(ContextElement.Service, "GET /", "v4")
+      InheritedTypeInContext(ContextElement.Service, "GET /{v4}", "v4")
     )
     val errors = ConsistencyVerification.run(m)
 
