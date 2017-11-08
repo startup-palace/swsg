@@ -74,12 +74,8 @@ case class ModelParser(input: ParserInput) extends Parser {
     "body"   -> Model.Body,
   )
   def ParameterLocation: Rule1[Model.ParameterLocation] = rule {
-    capture(oneOrMore(CharPredicate.Alpha)) ~> ((location: String) =>
-      validLocations
-        .get(location)
-        .toRight(new RuntimeException(s"'$location' must be one of ${validLocations.keys.mkString(", ")}"))
-        .toTry
-        .get)
+    capture(atomic("query") | atomic("header") | atomic("path") | atomic("cookie") | atomic("body")) ~> ((location: String) =>
+      validLocations.get(location).get)
   }
   def Ci: Rule1[Model.ComponentInstance] = rule {
     LineSeparator ~ Indentation ~ "ci" ~ WhitespaceSeparator ~ (Identifier ~ Bindings ~ Aliases) ~> (

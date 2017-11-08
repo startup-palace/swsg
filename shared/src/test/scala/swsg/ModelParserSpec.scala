@@ -214,4 +214,40 @@ ac
     parsedModel shouldBe a[Right[_, _]]
     parsedModel.right.get shouldBe model
   }
+
+  it should "work with all possible parameter locations" in {
+    val input =
+      """
+s
+  method GET
+  path /
+  param query test1: String
+  param header test2: String
+  param path test3: String
+  param cookie test4: String
+  param body test5: String
+  ci Test
+"""
+    val model = Model(
+      Set.empty,
+      Set.empty,
+      Seq(
+        Service(
+          "GET",
+          "/",
+          Set(
+            ServiceParameter(Query, Variable("test1", Str)),
+            ServiceParameter(Header, Variable("test2", Str)),
+            ServiceParameter(Path, Variable("test3", Str)),
+            ServiceParameter(Cookie, Variable("test4", Str)),
+            ServiceParameter(Body, Variable("test5", Str)),
+          ),
+          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+        )
+      )
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
 }
