@@ -30,6 +30,7 @@ cc
 s
   method GET
   path /
+  param query stuff: Seq(String)
   ci Home
 s
   method POST
@@ -139,7 +140,9 @@ ac
         Service(
           "GET",
           "/",
-          Set.empty,
+          Set(
+            ServiceParameter(Query, Variable("stuff", SeqOf(Str))),
+          ),
           ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
         ),
         Service(
