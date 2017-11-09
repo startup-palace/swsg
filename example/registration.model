@@ -10,8 +10,8 @@ s
   ci Registration
 s
   method GET
-  path /attendees/{key}
-  param path key: String
+  path /attendees
+  param query key: String
   ci GetAttendees(apiKey = "mykey")
 
 cc

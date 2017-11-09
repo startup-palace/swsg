@@ -11,16 +11,22 @@ class GetAttendeesTest extends DBTestCase
 {
     protected $key = "mykey";
 
+    public function testNoKey()
+    {
+        $response = $this->json('GET', '/attendees');
+        $response->assertStatus(401);
+    }
+
     public function testWrongKey()
     {
-        $response = $this->json('GET', '/attendees/wrongkey');
+        $response = $this->json('GET', '/attendees?key=wrongkey');
         $response->assertStatus(401);
     }
 
     public function testAttendees()
     {
         $expectedData = \RegistrationSeeder::registrationData();
-        $response = $this->json('GET', '/attendees/'.$this->key);
+        $response = $this->json('GET', '/attendees?key='.$this->key);
         $response
             ->assertStatus(200)
             ->assertJson($expectedData);
