@@ -14,7 +14,7 @@ class GetAttendeesTest extends DBTestCase
     public function testNoKey()
     {
         $response = $this->json('GET', '/attendees');
-        $response->assertStatus(401);
+        $response->assertStatus(400);
     }
 
     public function testWrongKey()

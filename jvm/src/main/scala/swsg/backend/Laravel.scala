@@ -97,4 +97,25 @@ final case object Laravel extends Backend {
       case _ => ""
     }
   }
+
+  def genValidatorRules(p: ServiceParameter): Seq[String] = {
+    def genOneValidatorRule(name: String, rules: Seq[String]): String = {
+      s"'$name' => '${rules.mkString("|")}'"
+    }
+
+    def getRulesByType(t: Type): Seq[String] = t match {
+      case OptionOf(subtype) => Seq("nullable") ++ getRulesByType(subtype)
+      case SeqOf(subtype)    => Seq.empty // FIXME
+      case EntityRef(entity) => Seq.empty // FIXME
+      case Str               => Seq("string")
+      case Boolean           => Seq("boolean")
+      case Integer           => Seq("integer")
+      case Float             => Seq("numeric")
+      case Date              => Seq("date")
+      case DateTime          => Seq("date")
+      case Inherited         => Seq.empty
+    }
+
+    Seq(genOneValidatorRule(p.variable.name, getRulesByType(p.variable.`type`)))
+  }
 }
