@@ -99,23 +99,41 @@ final case object Laravel extends Backend {
   }
 
   def genValidatorRules(p: ServiceParameter): Seq[String] = {
-    def genOneValidatorRule(name: String, rules: Seq[String]): String = {
-      s"'$name' => '${rules.mkString("|")}'"
+    final case class Validator(name: String, rules: Seq[String]) {
+      lazy val one: Seq[Validator] = Seq(this)
+
+      lazy val toPHP: String = {
+        s"'$name' => '${rules.mkString("|")}'"
+      }
+    }
+    final case object Validator {
+      def addRulesToFirst(rules: Seq[String],
+                          validators: Seq[Validator]): Seq[Validator] = {
+        validators.headOption match {
+          case Some(h) =>
+            Seq(h.copy(rules = h.rules ++ rules)) ++ validators.tail
+          case None => validators
+        }
+      }
     }
 
-    def getRulesByType(t: Type): Seq[String] = t match {
-      case OptionOf(subtype) => Seq("nullable") ++ getRulesByType(subtype)
-      case SeqOf(subtype)    => Seq.empty // FIXME
+    def getValidators(name: String)(t: Type): Seq[Validator] = t match {
+      case OptionOf(subtype) =>
+        Validator.addRulesToFirst(Seq("nullable"), getValidators(name)(subtype))
+      case SeqOf(subtype) =>
+        Validator(name, Seq("array")).one ++ getValidators(name + ".*")(subtype)
       case EntityRef(entity) => Seq.empty // FIXME
-      case Str               => Seq("string")
-      case Boolean           => Seq("boolean")
-      case Integer           => Seq("integer")
-      case Float             => Seq("numeric")
-      case Date              => Seq("date")
-      case DateTime          => Seq("date")
+      case Str               => Validator(name, Seq("string")).one
+      case Boolean           => Validator(name, Seq("boolean")).one
+      case Integer           => Validator(name, Seq("integer")).one
+      case Float             => Validator(name, Seq("numeric")).one
+      case Date              => Validator(name, Seq("date")).one
+      case DateTime          => Validator(name, Seq("date")).one
       case Inherited         => Seq.empty
     }
 
-    Seq(genOneValidatorRule(p.variable.name, getRulesByType(p.variable.`type`)))
+    Seq(p.variable.`type`)
+      .flatMap(getValidators(p.variable.name))
+      .map(_.toPHP)
   }
 }
