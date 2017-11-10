@@ -14,6 +14,6 @@ final case object Reference {
               components: Set[Component]): Option[Component] =
     components.find(_.name == ref.target)
 
-  def resolve(ref: EntityRef, components: Set[Entity]): Option[Entity] =
-    components.find(_.name == ref.entity)
+  def resolve(ref: EntityRef, entities: Set[Entity]): Option[Entity] =
+    entities.find(_.name == ref.entity)
 }
