@@ -16,7 +16,7 @@ final case object Laravel extends Backend {
   val swsgDir            = "app/SWSG/"
 
   def generate(model: Model, impl: Implementation): Map[String, String] = {
-    val routeFile = php.routes(model.components, model.services)
+    val routeFile = php.routes(model)
     val atomicComponentFiles = model.atomicComponents
       .map(c => impl.atomicComponents.find(_._1 == c.name).get)
       .map(acImpl => s"${componentBaseDir}/${acImpl._1}.php" -> acImpl._2)
@@ -98,9 +98,40 @@ final case object Laravel extends Backend {
     }
   }
 
-  def genValidatorRules(p: ServiceParameter): Seq[String] = {
+  def getParameters(p: ServiceParameter): String = {
+    final case class P(name: String, value: String) {
+      lazy val toPHP: String = {
+        s"'$name' => $value"
+      }
+    }
+
+    val value = p.location match {
+      case Query  => s"$$req->query('${p.variable.name}')"
+      case Header => s"$$req->header('${p.variable.name}')"
+      case Path   => s"$$req->route()->parameter('${p.variable.name}')"
+      case Cookie => s"$$req->cookie('${p.variable.name}')"
+      case Body =>
+        p.variable.`type` match {
+          case Str => "$req->getContent()"
+          case _   => "json_decode($req->getContent(), true)"
+        }
+    }
+
+    P(p.variable.name, value).toPHP
+  }
+
+  def genValidatorRules(entities: Set[Entity])(
+      p: ServiceParameter): Seq[String] = {
     final case class Validator(name: String, rules: Seq[String]) {
       lazy val one: Seq[Validator] = Seq(this)
+
+      lazy val addRequiredRule: Validator = {
+        if (this.rules.contains("nullable")) {
+          this
+        } else {
+          this.copy(rules = this.rules :+ "required")
+        }
+      }
 
       lazy val toPHP: String = {
         s"'$name' => '${rules.mkString("|")}'"
@@ -122,14 +153,19 @@ final case object Laravel extends Backend {
         Validator.addRulesToFirst(Seq("nullable"), getValidators(name)(subtype))
       case SeqOf(subtype) =>
         Validator(name, Seq("array")).one ++ getValidators(name + ".*")(subtype)
-      case EntityRef(entity) => Seq.empty // FIXME
-      case Str               => Validator(name, Seq("string")).one
-      case Boolean           => Validator(name, Seq("boolean")).one
-      case Integer           => Validator(name, Seq("integer")).one
-      case Float             => Validator(name, Seq("numeric")).one
-      case Date              => Validator(name, Seq("date")).one
-      case DateTime          => Validator(name, Seq("date")).one
-      case Inherited         => Seq.empty
+      case ref @ EntityRef(_) => {
+        val entity = Reference.resolve(ref, entities).get
+        entity.attributes.toSeq
+          .flatMap(a => getValidators(name + "." + a.name)(a.`type`))
+          .map(_.addRequiredRule)
+      }
+      case Str       => Validator(name, Seq("string")).one
+      case Boolean   => Validator(name, Seq("boolean")).one
+      case Integer   => Validator(name, Seq("integer")).one
+      case Float     => Validator(name, Seq("numeric")).one
+      case Date      => Validator(name, Seq("date")).one
+      case DateTime  => Validator(name, Seq("date")).one
+      case Inherited => Seq.empty
     }
 
     Seq(p.variable.`type`)
