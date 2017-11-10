@@ -54,3 +54,37 @@ ac
 ac
   name RegistrationsSerializer
   pre (registrations: Seq(Registration))
+
+
+
+
+// This is used by the automated test
+
+e
+  name Test
+  attributes (name: String, email: Option(Integer))
+
+s
+  method POST
+  path /test/header
+  param header p1: Str
+  param header p2: Option(Int)
+  ci Test
+
+s
+  method GET
+  path /test/path/{p1}/path/{p2}
+  param path p1: Str
+  param path p2: Option(Int)
+  ci Test
+
+s
+  method GET
+  path /test/query
+  param query p1: Str
+  param query p2: Seq(Int)
+  param query p3: Option(Int)
+  ci Test
+
+ac
+  name Test
