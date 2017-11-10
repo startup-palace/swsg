@@ -204,10 +204,14 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Utils
   def WhitespaceSeparator = rule { oneOrMore(' ') }
-  def LineSeparator       = rule { '\n' }
-  def LinesSeparator      = rule { oneOrMore('\n') }
+  def LineSeparator       = rule { zeroOrMore(Comment) ~ '\n' }
+  def LinesSeparator      = rule { oneOrMore(LineSeparator) }
   def ParameterSeparator  = rule { zeroOrMore(' ') ~ ',' ~ zeroOrMore(' ') }
   def Indentation         = WhitespaceSeparator
+  def Comment             = rule { optional('\n') ~
+                                   optional(WhitespaceSeparator) ~
+                                   "//" ~
+                                   zeroOrMore(CharPredicate.All -- '\n') }
 }
 
 object ModelParser {

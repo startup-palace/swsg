@@ -250,4 +250,32 @@ s
     parsedModel shouldBe a[Right[_, _]]
     parsedModel.right.get shouldBe model
   }
+
+  it should "handle comments" in {
+    val input =
+      """
+//comment
+s
+  method GET // comment
+  path /
+  // comment
+// comment
+  ci Test
+"""
+    val model = Model(
+      Set.empty,
+      Set.empty,
+      Seq(
+        Service(
+          "GET",
+          "/",
+          Set.empty,
+          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+        )
+      )
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
 }
