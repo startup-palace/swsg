@@ -15,7 +15,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p1 must be a string.', 'The p2 must be an array.']);
-
     }
 
     public function testP1AndNoP2()
@@ -24,7 +23,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p2 must be an array.']);
-
     }
 
     public function testP1AndEmptyP2()
@@ -33,7 +31,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p2.0 must be an integer.']);
-
     }
 
     public function testP1AndP2()
@@ -42,7 +39,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(200)
             ->assertExactJson(['p1' => 'test', 'p2' => ['1', '2'], 'p3' => null]);
-
     }
 
     public function testP1AndInvalidP2()
@@ -51,7 +47,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p2.1 must be an integer.']);
-
     }
 
     public function testP1AndP2AndP3()
@@ -60,7 +55,6 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(200)
             ->assertExactJson(['p1' => 'test', 'p2' => ['1', '2'], 'p3' => '10']);
-
     }
 
     public function testP1AndP2AndInvalidP3()
@@ -69,6 +63,5 @@ class QueryParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p3 must be an integer.']);
-
     }
 }

@@ -13,14 +13,12 @@ class PathParametersTest extends DBTestCase
     {
         $response = $this->json('GET', '/test/path');
         $response->assertStatus(404);
-
     }
 
     public function testP1AndP2()
     {
         $response = $this->json('GET', '/test/path/test/path/5');
         $response->assertStatus(200);
-
     }
 
     public function testP1AndInvalidP2()

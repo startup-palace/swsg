@@ -15,7 +15,6 @@ class HeaderParametersTest extends DBTestCase
         $response
             ->assertStatus(400)
             ->assertExactJson(['The p1 must be a string.']);
-
     }
 
     public function testP1()
@@ -25,7 +24,6 @@ class HeaderParametersTest extends DBTestCase
             ->json('POST', '/test/header');
         $response
             ->assertStatus(200);
-
     }
 
     public function testP1AndP2()
@@ -35,7 +33,6 @@ class HeaderParametersTest extends DBTestCase
             ->json('POST', '/test/header');
         $response
             ->assertStatus(200);
-
     }
 
     public function testP1AndInvalidP2()
@@ -46,6 +43,5 @@ class HeaderParametersTest extends DBTestCase
             $response
                 ->assertStatus(400)
                 ->assertExactJson(['The p2 must be an integer.']);
-
     }
 }
