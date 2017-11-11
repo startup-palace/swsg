@@ -37,25 +37,30 @@ final case object OpenApi {
     import cats.syntax.validated._
     import Model._
 
+    final object SchemaHasType {
+      def unapply(s: Schema): Option[(String, Option[String])] = {
+        s.`type`.map(t => (t, s.format))
+      }
+    }
+    final object SchemaHasProps {
+      def unapply(s: Schema): Option[(Map[String, SchemaOrRef], Set[String])] = {
+        s.properties.map(props => (props, s.required.getOrElse(Set.empty)))
+      }
+    }
+    final object SchemaHasAllOf {
+      def unapply(s: Schema): Option[Seq[SchemaOrRef]] = {
+        s.allOf
+      }
+    }
+    final object SchemaHasNullable {
+      def unapply(s: Schema): Option[Boolean] = {
+        s.nullable
+      }
+    }
+
     val computeEntities: ValidatedNel[String, Set[Entity]] = {
       import cats.instances.vector._
       import cats.syntax.traverse._
-
-      final object SchemaHasProps {
-        def unapply(s: Schema): Option[(Map[String, SchemaOrRef], Set[String])] = {
-          s.properties.map(props => (props, s.required.getOrElse(Set.empty)))
-        }
-      }
-      final object SchemaHasType {
-        def unapply(s: Schema): Option[(String, Option[String])] = {
-          s.`type`.map(t => (t, s.format))
-        }
-      }
-      final object SchemaHasAllOf {
-        def unapply(s: Schema): Option[Seq[SchemaOrRef]] = {
-          s.allOf
-        }
-      }
 
       def toSwsgType(t: String): ValidatedNel[String, Type] = t match {
         case "string" => Str.valid
@@ -145,7 +150,83 @@ final case object OpenApi {
     }
 
     val computeServices: ValidatedNel[String, Seq[Service]] = {
-      Seq.empty.valid // TODO
+      import cats.instances.vector._
+      import cats.syntax.traverse._
+
+      def extractParameters(o: Operation): ValidatedNel[String, Set[ServiceParameter]] = {
+        val parameters = o.parameters.getOrElse(Seq.empty).toVector
+        // TODO: handle body
+        parameters.map(extractParameter).sequence.map(_.toSet)
+      }
+
+      def extractParameter(p: ParameterOrRef): ValidatedNel[String, ServiceParameter] = {
+        p match {
+          case Reference(_) => "References in operatin parameters are not handled".invalidNel
+          case p @ Parameter(name, in, _, _, _, _, _, _, _, _, _) => {
+            val supported = Map(
+              "query" -> Model.Query,
+              "header" -> Model.Header,
+              "path" -> Model.Path,
+              "cookie" -> Model.Cookie,
+            )
+            supported.get(in) match {
+              case Some(location) => extractParameterType(p).map(t => ServiceParameter(location, Variable(name, t)))
+              case None => s"Value in = '$in' of parameter $name is not supported. It must be one of ${supported.mkString(", ")}.".invalidNel
+            }
+          }
+        }
+      }
+
+      def extractParameterType(p: Parameter): ValidatedNel[String, Type] = {
+        val required = p.required.getOrElse(false)
+        p.schema match {
+          case None => s"A schema must be specified in parameter '${p.name}'".invalidNel
+          case Some(s) => schemaToType(p.name)(s, required)
+        }
+      }
+
+      def schemaToType(pname: String)(schemaOrRef: SchemaOrRef, required: Boolean): ValidatedNel[String, Type] = {
+        val computedType: ValidatedNel[String, Type] = schemaOrRef match {
+          case Reference(_) => s"Schema must be literal (not a reference) in parameter '${pname}'".invalidNel
+          case SchemaHasType("integer", _) => Model.Integer.valid
+          case SchemaHasType("number", _) => Model.Float.valid
+          case SchemaHasType("string", _) => Model.Str.valid
+          case SchemaHasType("boolean", _) => Model.Boolean.valid
+          case SchemaHasType("object", _) => ???
+          case s @ SchemaHasType("array", _) => s.items match {
+            case Some(sub) => schemaToType(pname)(sub, true).map(computedSub => SeqOf(computedSub))
+            case None => s"Schemas of type 'array' must have an 'items' attribute in parameter '${pname}'".invalidNel
+          }
+          case SchemaHasType("null", _) => s"'null' type are not allowed in parameter '${pname}'".invalidNel
+          case _ => s"Schema must have a 'type' attribute in parameter '${pname}'".invalidNel
+        }
+        computedType.map { t =>
+          schemaOrRef match {
+            case SchemaHasNullable(true) => Model.OptionOf(t)
+            case _ => if (!required) Model.OptionOf(t) else t
+          }
+        }
+      }
+
+      val operations: Seq[(String, String, Operation)] = openapi
+        .paths
+        .flatMap {
+          case (path, pathItem) => pathItem.toOperations.map {
+            case (method, operation) => (method.toUpperCase, path, operation)
+          }
+        }
+        .toVector
+
+      val swsgOperations: Seq[(String, String, ComponentInstance, Operation)] = operations.flatMap {
+        case (method, path, o @ Operation(_, _, _, _, _, _, _, _, Some(ci))) =>
+          Vector((method, path, ci, o))
+        case (_, _, Operation(_, _, _, _, _, _, _, _, None)) => Vector.empty
+      }
+
+      swsgOperations.map {
+        case (method, path, ci, operation) =>
+          extractParameters(operation).map(o => Service(method, path, o, ci))
+      }.toVector.sequence.map(_.toSeq)
     }
 
     (computeEntities, computeComponents, computeServices)
@@ -299,7 +380,23 @@ final case object OpenApi {
     trace: Option[Operation],
     //servers: Option[Seq[Server]],
     parameters: Option[Seq[ParameterOrRef]],
-  )
+  ) {
+    lazy val toOperations: Seq[(String, Operation)] = {
+      Map(
+        "get" -> this.get,
+        "put" -> this.put,
+        "post" -> this.post,
+        "delete" -> this.delete,
+        "options" -> this.options,
+        "head" -> this.head,
+        "patch" -> this.patch,
+        "trace" -> this.trace,
+      ).toSeq.flatMap {
+        case (method, Some(operation)) => Seq((method, operation))
+        case (_, None) => Seq.empty
+      }
+    }
+  }
 
   sealed abstract trait ParameterOrRef
   final case class Parameter(

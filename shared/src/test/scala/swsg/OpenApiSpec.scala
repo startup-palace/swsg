@@ -62,7 +62,17 @@ class OpenApiSpec extends FlatSpec with Matchers {
             ComponentInstance(ComponentRef("FetchAllPets"), Set.empty, Set.empty),
             ComponentInstance(ComponentRef("FilterPetsByTags"), Set.empty, Set.empty),
             ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set.empty)))),
-      Seq.empty,
+      Seq(
+        Service(
+          "GET",
+          "/pets",
+          Set(
+            ServiceParameter(Query, Variable("tags", OptionOf(SeqOf(Str)))),
+            ServiceParameter(Query, Variable("limit", OptionOf(Integer))),
+          ),
+          ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)
+        )
+      ),
     )
 
     val parsedModel = OpenApi.fromJson(spec).flatMap(OpenApi.toModel)
