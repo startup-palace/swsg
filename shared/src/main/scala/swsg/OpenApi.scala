@@ -161,7 +161,7 @@ final case object OpenApi {
 
       def extractParameter(p: ParameterOrRef): ValidatedNel[String, ServiceParameter] = {
         p match {
-          case Reference(_) => "References in operatin parameters are not handled".invalidNel
+          case Reference(_) => "References in operation parameters are not handled".invalidNel
           case p @ Parameter(name, in, _, _, _, _, _, _, _, _, _) => {
             val supported = Map(
               "query" -> Model.Query,
