@@ -230,7 +230,7 @@ final case object OpenApiConverter {
         .paths
         .toVector
         .flatMap {
-          case (path, pathItem) => pathItem.toOperations.map {
+          case (path, pathItem) => pathItem.operations.map {
             case (method, operation) => (method.toUpperCase, path, operation)
           }
         }

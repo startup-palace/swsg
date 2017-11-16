@@ -83,13 +83,6 @@ class OpenApiSpec extends FlatSpec with Matchers {
       ),
       Seq(
         Service(
-          "POST",
-          "/pets",
-          Set(
-            ServiceParameter(Body, Variable("newPet", EntityRef("NewPet"))),
-          ),
-          ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty)),
-        Service(
           "GET",
           "/pets",
           Set(
@@ -98,12 +91,12 @@ class OpenApiSpec extends FlatSpec with Matchers {
           ),
           ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)),
         Service(
-          "DELETE",
-          "/pets/{id}",
+          "POST",
+          "/pets",
           Set(
-            ServiceParameter(Path, Variable("id", Integer)),
+            ServiceParameter(Body, Variable("newPet", EntityRef("NewPet"))),
           ),
-          ComponentInstance(ComponentRef("DeletePet"), Set.empty, Set.empty)),
+          ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty)),
         Service(
           "GET",
           "/pets/{id}",
@@ -111,6 +104,13 @@ class OpenApiSpec extends FlatSpec with Matchers {
             ServiceParameter(Path, Variable("id", Integer)),
           ),
           ComponentInstance(ComponentRef("FindPet"), Set.empty, Set.empty)),
+        Service(
+          "DELETE",
+          "/pets/{id}",
+          Set(
+            ServiceParameter(Path, Variable("id", Integer)),
+          ),
+          ComponentInstance(ComponentRef("DeletePet"), Set.empty, Set.empty)),
       ),
     )
 

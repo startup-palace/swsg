@@ -1,6 +1,7 @@
 package swsg
 
 import OpenApi._
+import scala.collection.immutable.ListMap
 
 final case class Versions(openapi: String, `x-swsg-version`: String)
 
@@ -146,33 +147,10 @@ final case object OpenApi {
     $ref: Option[String],
     summary: Option[String],
     description: Option[String],
-    get: Option[Operation],
-    put: Option[Operation],
-    post: Option[Operation],
-    delete: Option[Operation],
-    options: Option[Operation],
-    head: Option[Operation],
-    patch: Option[Operation],
-    trace: Option[Operation],
+    operations: ListMap[String, Operation], // This is different from OpenAPI spec but the parser does the right thing here
     //servers: Option[Seq[Server]],
     parameters: Option[Seq[ParameterOrRef]],
-  ) {
-    lazy val toOperations: Seq[(String, Operation)] = {
-      Map(
-        "get" -> this.get,
-        "put" -> this.put,
-        "post" -> this.post,
-        "delete" -> this.delete,
-        "options" -> this.options,
-        "head" -> this.head,
-        "patch" -> this.patch,
-        "trace" -> this.trace,
-      ).toSeq.flatMap {
-        case (method, Some(operation)) => Seq((method, operation))
-        case (_, None) => Seq.empty
-      }
-    }
-  }
+  )
 
   sealed abstract trait ParameterOrRef
   final case class Parameter(
