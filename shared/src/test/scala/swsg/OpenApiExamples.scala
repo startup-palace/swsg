@@ -441,6 +441,11 @@ final case object OpenApiExamples {
               }
             }
           }
+        },
+        "x-swsg-ci": {
+          "component": {
+            "target": "DeletePet"
+          }
         }
       }
     }
@@ -621,6 +626,15 @@ final case object OpenApiExamples {
             "type": {
               "entity": "Pet"
             }
+          }
+        ]
+      },
+      {
+        "name": "DeletePet",
+        "pre": [
+          {
+            "name": "id",
+            "type": "Integer"
           }
         ]
       }

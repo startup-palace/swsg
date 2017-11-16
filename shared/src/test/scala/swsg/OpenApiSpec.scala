@@ -74,6 +74,12 @@ class OpenApiSpec extends FlatSpec with Matchers {
           Set(Variable("id", Integer)),
           Set(Variable("pet", EntityRef("Pet"))),
           Set.empty),
+        AtomicComponent(
+          "DeletePet",
+          Set.empty,
+          Set(Variable("id", Integer)),
+          Set.empty,
+          Set.empty),
       ),
       Seq(
         Service(
@@ -91,6 +97,13 @@ class OpenApiSpec extends FlatSpec with Matchers {
             ServiceParameter(Query, Variable("limit", OptionOf(Integer))),
           ),
           ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)),
+        Service(
+          "DELETE",
+          "/pets/{id}",
+          Set(
+            ServiceParameter(Path, Variable("id", Integer)),
+          ),
+          ComponentInstance(ComponentRef("DeletePet"), Set.empty, Set.empty)),
         Service(
           "GET",
           "/pets/{id}",
