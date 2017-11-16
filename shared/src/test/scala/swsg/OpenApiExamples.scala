@@ -405,6 +405,11 @@ final case object OpenApiExamples {
               }
             }
           }
+        },
+        "x-swsg-ci": {
+          "component": {
+            "target": "FindPet"
+          }
         }
       },
       "delete": {
@@ -591,6 +596,23 @@ final case object OpenApiExamples {
             "type": {
               "entity": "NewPet"
             }
+          }
+        ],
+        "add": [
+          {
+            "name": "pet",
+            "type": {
+              "entity": "Pet"
+            }
+          }
+        ]
+      },
+      {
+        "name": "FindPet",
+        "pre": [
+          {
+            "name": "id",
+            "type": "Integer"
           }
         ],
         "add": [
