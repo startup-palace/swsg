@@ -336,7 +336,8 @@ final case object OpenApiExamples {
                 "$ref": "#/components/schemas/NewPet"
               }
             }
-          }
+          },
+          "x-swsg-name": "newPet"
         },
         "responses": {
           "200": {
@@ -358,6 +359,11 @@ final case object OpenApiExamples {
                 }
               }
             }
+          }
+        },
+        "x-swsg-ci": {
+          "component": {
+            "target": "CreatePet"
           }
         }
       }
@@ -573,6 +579,25 @@ final case object OpenApiExamples {
               "seqOf": {
                 "entity": "Pet"
               }
+            }
+          }
+        ]
+      },
+      {
+        "name": "CreatePet",
+        "pre": [
+          {
+            "name": "newPet",
+            "type": {
+              "entity": "NewPet"
+            }
+          }
+        ],
+        "add": [
+          {
+            "name": "pet",
+            "type": {
+              "entity": "Pet"
             }
           }
         ]

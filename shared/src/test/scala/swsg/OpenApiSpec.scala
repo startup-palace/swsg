@@ -61,8 +61,22 @@ class OpenApiSpec extends FlatSpec with Matchers {
           List(
             ComponentInstance(ComponentRef("FetchAllPets"), Set.empty, Set.empty),
             ComponentInstance(ComponentRef("FilterPetsByTags"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set.empty)))),
+            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set.empty))),
+        AtomicComponent(
+          "CreatePet",
+          Set.empty,
+          Set(Variable("newPet", EntityRef("NewPet"))),
+          Set(Variable("pet", EntityRef("Pet"))),
+          Set.empty),
+      ),
       Seq(
+        Service(
+          "POST",
+          "/pets",
+          Set(
+            ServiceParameter(Body, Variable("newPet", EntityRef("NewPet"))),
+          ),
+          ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty)),
         Service(
           "GET",
           "/pets",
@@ -70,8 +84,7 @@ class OpenApiSpec extends FlatSpec with Matchers {
             ServiceParameter(Query, Variable("tags", OptionOf(SeqOf(Str)))),
             ServiceParameter(Query, Variable("limit", OptionOf(Integer))),
           ),
-          ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)
-        )
+          ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)),
       ),
     )
 
