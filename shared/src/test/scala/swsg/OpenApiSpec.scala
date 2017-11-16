@@ -5,13 +5,13 @@ import swsg.Model._
 class OpenApiSpec extends FlatSpec with Matchers {
   "OpenAPI parser" should "not parse a standard spec" in {
     val spec = OpenApiExamples.standardSpec
-    val parsedSpec = OpenApi.fromJson(spec)
+    val parsedSpec = OpenApiConverter.fromJson(spec)
     parsedSpec shouldBe a[Left[_, _]]
   }
 
   it should "parse a swsg spec" in {
     val spec = OpenApiExamples.swsgSpec
-    val parsedSpec = OpenApi.fromJson(spec)
+    val parsedSpec = OpenApiConverter.fromJson(spec)
     parsedSpec shouldBe a[Right[_, _]]
   }
 
@@ -88,7 +88,7 @@ class OpenApiSpec extends FlatSpec with Matchers {
       ),
     )
 
-    val parsedModel = OpenApi.fromJson(spec).flatMap(OpenApi.toModel)
+    val parsedModel = OpenApiConverter.fromJson(spec).flatMap(OpenApiConverter.toModel)
     parsedModel shouldBe a[Right[_, _]]
     parsedModel.right.get shouldBe model
   }
