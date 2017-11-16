@@ -58,6 +58,28 @@ final case object OpenApi {
       }
     }
 
+    def parseSchemaReference(reference: String): ValidatedNel[String, String] = {
+      reference.split("/").toList match {
+        case "#" :: "components" :: "schemas" :: name :: Nil => name.validNel
+        case _ => s"Cannot resolve reference '$reference'".invalidNel
+      }
+    }
+
+    def resolveSchemaReference(schemas: Map[String, SchemaOrRef])(reference: String): ValidatedNel[String, Schema] = {
+      parseSchemaReference(reference).andThen { name =>
+        schemas.get(name) match {
+          case Some(s: Schema) => s.validNel
+          case Some(ref: Reference) => resolveSchemaReference(schemas)(ref.$ref)
+          case None => s"Schema '$name' is not defined".invalidNel
+        }
+      }
+    }
+
+    val schemas: Map[String, SchemaOrRef] = openapi
+      .components
+      .map(_.schemas.getOrElse(Map.empty))
+      .getOrElse(Map.empty)
+
     val computeEntities: ValidatedNel[String, Set[Entity]] = {
       import cats.instances.vector._
       import cats.syntax.traverse._
@@ -70,21 +92,9 @@ final case object OpenApi {
         case t => s"Type '$t' is not supported".invalidNel
       }
 
-      @annotation.tailrec
-      def resolveReference(schemas: Map[String, SchemaOrRef])(reference: String): ValidatedNel[String, Schema] = {
-        reference.split("/").toList match {
-          case "#" :: "components" :: "schemas" :: name :: Nil => schemas.get(name) match {
-            case Some(s: Schema) => s.validNel
-            case Some(ref: Reference) => resolveReference(schemas)(ref.$ref)
-            case None => s"Schema '$name' is not defined".invalidNel
-          }
-          case _ => s"Cannot resolve reference '$reference'".invalidNel
-        }
-      }
-
       def flattenSchemas(allSchemas: Map[String, SchemaOrRef])(path: Seq[String], schemas: Seq[SchemaOrRef]): ValidatedNel[String, Schema] = {
         val resolved: Seq[ValidatedNel[String, Schema]] = schemas.map {
-          case Reference(ref) => resolveReference(allSchemas)(ref)
+          case Reference(ref) => resolveSchemaReference(allSchemas)(ref)
           case s: Schema => s.valid
         }
 
@@ -122,11 +132,6 @@ final case object OpenApi {
         computeSchema(schemas)(Seq(name), schema).map(attrs => Entity(name, attrs))
       }
 
-      val schemas: Map[String, SchemaOrRef] = openapi
-        .components
-        .map(_.schemas.getOrElse(Map.empty))
-        .getOrElse(Map.empty)
-
       val computedEntities: Vector[ValidatedNel[String, Entity]] = schemas
         .toVector
         .map(s => computeEntity(schemas)(s._1, s._2))
@@ -155,8 +160,29 @@ final case object OpenApi {
 
       def extractParameters(o: Operation): ValidatedNel[String, Set[ServiceParameter]] = {
         val parameters = o.parameters.getOrElse(Seq.empty).toVector
-        // TODO: handle body
-        parameters.map(extractParameter).sequence.map(_.toSet)
+        val extractedParameters = parameters.map(extractParameter).sequence.map(_.toSet)
+        val extractedBody = o.requestBody.map(b => extractBody(b).map(sp => Set(sp))).getOrElse(Set.empty.validNel)
+        (extractedParameters, extractedBody).mapN(_ ++ _)
+      }
+
+      def extractBody(b: RequestBodyOrRef): ValidatedNel[String, ServiceParameter] = {
+        b match {
+          case Reference(_) => "References in operation requestBody are not handled".invalidNel
+          case RequestBody(_, _, _, None) => "RequestBody in operation must have a 'x-swsg-name' attribute".invalidNel
+          case RequestBody(_, content, required, Some(name)) => {
+            if (content.size != 1) {
+              "Multiple items in content in RequestBody are not handled".invalidNel
+            } else {
+              val extractedType = content
+                .values
+                .head
+                .schema
+                .map(s => schemaToType(Seq("RequestBody"), s, required.getOrElse(false)))
+                .getOrElse("Content items in RequestBody must have a 'schema' attribute".invalidNel)
+              extractedType.map(t => ServiceParameter(Body, Variable(name, t)))
+            }
+          }
+        }
       }
 
       def extractParameter(p: ParameterOrRef): ValidatedNel[String, ServiceParameter] = {
@@ -181,24 +207,24 @@ final case object OpenApi {
         val required = p.required.getOrElse(false)
         p.schema match {
           case None => s"A schema must be specified in parameter '${p.name}'".invalidNel
-          case Some(s) => schemaToType(p.name)(s, required)
+          case Some(s) => schemaToType(Seq(s"parameter '${p.name}'"), s, required)
         }
       }
 
-      def schemaToType(pname: String)(schemaOrRef: SchemaOrRef, required: Boolean): ValidatedNel[String, Type] = {
+      def schemaToType(parents: Seq[String], schemaOrRef: SchemaOrRef, required: Boolean): ValidatedNel[String, Type] = {
         val computedType: ValidatedNel[String, Type] = schemaOrRef match {
-          case Reference(_) => s"Schema must be literal (not a reference) in parameter '${pname}'".invalidNel
+          case Reference(ref) => parseSchemaReference(ref).andThen(n => EntityRef(n).valid)
           case SchemaHasType("integer", _) => Model.Integer.valid
           case SchemaHasType("number", _) => Model.Float.valid
           case SchemaHasType("string", _) => Model.Str.valid
           case SchemaHasType("boolean", _) => Model.Boolean.valid
           case SchemaHasType("object", _) => ???
           case s @ SchemaHasType("array", _) => s.items match {
-            case Some(sub) => schemaToType(pname)(sub, true).map(computedSub => SeqOf(computedSub))
-            case None => s"Schemas of type 'array' must have an 'items' attribute in parameter '${pname}'".invalidNel
+            case Some(sub) => schemaToType(parents :+ "[list]", sub, true).map(computedSub => SeqOf(computedSub))
+            case None => s"Schemas of type 'array' must have an 'items' attribute in '${parents.mkString(" -> ")}'".invalidNel
           }
-          case SchemaHasType("null", _) => s"'null' type are not allowed in parameter '${pname}'".invalidNel
-          case _ => s"Schema must have a 'type' attribute in parameter '${pname}'".invalidNel
+          case SchemaHasType("null", _) => s"'null' type are not allowed in '${parents.mkString(" -> ")}'".invalidNel
+          case _ => s"Schema is not supported in '${parents.mkString(" -> ")}'".invalidNel
         }
         computedType.map { t =>
           schemaOrRef match {
@@ -210,17 +236,17 @@ final case object OpenApi {
 
       val operations: Seq[(String, String, Operation)] = openapi
         .paths
+        .toVector
         .flatMap {
           case (path, pathItem) => pathItem.toOperations.map {
             case (method, operation) => (method.toUpperCase, path, operation)
           }
         }
-        .toVector
 
       val swsgOperations: Seq[(String, String, ComponentInstance, Operation)] = operations.flatMap {
-        case (method, path, o @ Operation(_, _, _, _, _, _, _, _, Some(ci))) =>
+        case (method, path, o @ Operation(_, _, _, _, _, _, _, _, _, Some(ci))) =>
           Vector((method, path, ci, o))
-        case (_, _, Operation(_, _, _, _, _, _, _, _, None)) => Vector.empty
+        case (_, _, Operation(_, _, _, _, _, _, _, _, _, None)) => Vector.empty
       }
 
       swsgOperations.map {
@@ -439,7 +465,7 @@ final case object OpenApi {
     externalDocs: Option[ExternalDocumentation],
     operationId: Option[String],
     parameters: Option[Seq[ParameterOrRef]],
-    //requestBody: Option[RequestBody],
+    requestBody: Option[RequestBodyOrRef],
     responses: Map[String, ResponseOrRef],
     //callbacks: Option[Map[String, CallbackOrRef]],
     deprecated: Option[Boolean],
@@ -447,6 +473,14 @@ final case object OpenApi {
     //servers: Option[Seq[Server]],
     `x-swsg-ci`: Option[Model.ComponentInstance],
   )
+
+  sealed abstract trait RequestBodyOrRef
+  final case class RequestBody(
+    description: Option[String],
+    content: Map[String, MediaType],
+    required: Option[Boolean],
+    `x-swsg-name`: Option[String],
+  ) extends RequestBodyOrRef
 
   sealed abstract trait ResponseOrRef
   final case class Response(
@@ -476,6 +510,7 @@ final case object OpenApi {
   final case class Reference($ref: String)
       extends SchemaOrRef
       with ParameterOrRef
+      with RequestBodyOrRef
       with ResponseOrRef
       with HeaderOrRef
 }
@@ -511,6 +546,17 @@ final case object OpenApiInstances {
     final def apply(c: HCursor): Decoder.Result[ParameterOrRef] = {
       decodeReference(c) match {
         case Left(_) => decodeParameter(c)
+        case r @ _ => r
+      }
+    }
+  }
+
+  implicit val decodeRequestBody: Decoder[RequestBody] = deriveDecoder
+
+  implicit val decodeRequestBodyOrRef: Decoder[RequestBodyOrRef] = new Decoder[RequestBodyOrRef] {
+    final def apply(c: HCursor): Decoder.Result[RequestBodyOrRef] = {
+      decodeReference(c) match {
+        case Left(_) => decodeRequestBody(c)
         case r @ _ => r
       }
     }
