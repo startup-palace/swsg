@@ -363,7 +363,7 @@ final case object OpenApiExamples {
         },
         "x-swsg-ci": {
           "component": {
-            "target": "CreatePet"
+            "target": "AddPet"
           }
         }
       }
@@ -516,6 +516,53 @@ final case object OpenApiExamples {
           {
             "component": {
               "target": "LimitPets"
+            },
+            "aliases": [
+              {
+                "source": "pets",
+                "target": "filteredPets"
+              }
+            ]
+          },
+          {
+            "component": {
+              "target": "RenderPets"
+            },
+            "aliases": [
+              {
+                "source": "pets",
+                "target": "limitedPets"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "AddPet",
+        "components": [
+          {
+            "component": {
+              "target": "CreatePet"
+            }
+          },
+          {
+            "component": {
+              "target": "RenderPet"
+            }
+          }
+        ]
+      },
+      {
+        "name": "FindPet",
+        "components": [
+          {
+            "component": {
+              "target": "GetPetById"
+            }
+          },
+          {
+            "component": {
+              "target": "RenderPet"
             }
           }
         ]
@@ -549,13 +596,15 @@ final case object OpenApiExamples {
           {
             "name": "tags",
             "type": {
-              "seqOf": "Str"
+              "optionOf": {
+                "seqOf": "Str"
+              }
             }
           }
         ],
         "add": [
           {
-            "name": "pets",
+            "name": "filteredPets",
             "type": {
               "seqOf": {
                 "entity": "Pet"
@@ -578,17 +627,41 @@ final case object OpenApiExamples {
           {
             "name": "limit",
             "type": {
-              "seqOf": "Integer"
+              "optionOf": "Integer"
             }
           }
         ],
         "add": [
+          {
+            "name": "limitedPets",
+            "type": {
+              "seqOf": {
+                "entity": "Pet"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "RenderPets",
+        "pre": [
           {
             "name": "pets",
             "type": {
               "seqOf": {
                 "entity": "Pet"
               }
+            }
+          }
+        ]
+      },
+      {
+        "name": "RenderPet",
+        "pre": [
+          {
+            "name": "pet",
+            "type": {
+              "entity": "Pet"
             }
           }
         ]
@@ -613,7 +686,7 @@ final case object OpenApiExamples {
         ]
       },
       {
-        "name": "FindPet",
+        "name": "GetPetById",
         "pre": [
           {
             "name": "id",

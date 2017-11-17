@@ -46,14 +46,26 @@ class OpenApiSpec extends FlatSpec with Matchers {
         AtomicComponent(
           "FilterPetsByTags",
           Set.empty,
-          Set(Variable("pets", SeqOf(EntityRef("Pet"))), Variable("tags", SeqOf(Str))),
-          Set(Variable("pets", SeqOf(EntityRef("Pet")))),
+          Set(Variable("pets", SeqOf(EntityRef("Pet"))), Variable("tags", OptionOf(SeqOf(Str)))),
+          Set(Variable("filteredPets", SeqOf(EntityRef("Pet")))),
           Set.empty),
         AtomicComponent(
           "LimitPets",
           Set.empty,
-          Set(Variable("pets", SeqOf(EntityRef("Pet"))), Variable("limit", SeqOf(Integer))),
+          Set(Variable("pets", SeqOf(EntityRef("Pet"))), Variable("limit", OptionOf(Integer))),
+          Set(Variable("limitedPets", SeqOf(EntityRef("Pet")))),
+          Set.empty),
+        AtomicComponent(
+          "RenderPets",
+          Set.empty,
           Set(Variable("pets", SeqOf(EntityRef("Pet")))),
+          Set.empty,
+          Set.empty),
+        AtomicComponent(
+          "RenderPet",
+          Set.empty,
+          Set(Variable("pet", EntityRef("Pet"))),
+          Set.empty,
           Set.empty),
         CompositeComponent(
           "GetAllPets",
@@ -61,19 +73,35 @@ class OpenApiSpec extends FlatSpec with Matchers {
           List(
             ComponentInstance(ComponentRef("FetchAllPets"), Set.empty, Set.empty),
             ComponentInstance(ComponentRef("FilterPetsByTags"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set.empty))),
+            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set(Alias("pets", "filteredPets"))),
+            ComponentInstance(ComponentRef("RenderPets"), Set.empty, Set(Alias("pets", "limitedPets"))),
+          )),
         AtomicComponent(
           "CreatePet",
           Set.empty,
           Set(Variable("newPet", EntityRef("NewPet"))),
           Set(Variable("pet", EntityRef("Pet"))),
           Set.empty),
+        CompositeComponent(
+          "AddPet",
+          Set.empty,
+          List(
+            ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("RenderPet"), Set.empty, Set.empty),
+          )),
         AtomicComponent(
-          "FindPet",
+          "GetPetById",
           Set.empty,
           Set(Variable("id", Integer)),
           Set(Variable("pet", EntityRef("Pet"))),
           Set.empty),
+        CompositeComponent(
+          "FindPet",
+          Set.empty,
+          List(
+            ComponentInstance(ComponentRef("GetPetById"), Set.empty, Set.empty),
+            ComponentInstance(ComponentRef("RenderPet"), Set.empty, Set.empty),
+          )),
         AtomicComponent(
           "DeletePet",
           Set.empty,
@@ -96,7 +124,7 @@ class OpenApiSpec extends FlatSpec with Matchers {
           Set(
             ServiceParameter(Body, Variable("newPet", EntityRef("NewPet"))),
           ),
-          ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty)),
+          ComponentInstance(ComponentRef("AddPet"), Set.empty, Set.empty)),
         Service(
           "GET",
           "/pets/{id}",
