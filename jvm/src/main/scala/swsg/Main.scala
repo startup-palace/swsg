@@ -2,11 +2,12 @@ package swsg
 
 final case object Main extends App {
 
-  final case class RawCfg(mode: String = "check",
-                          modelFile: String = "./example/registration.model",
-                          implementationPath: String = "./example/impl/",
-                          backend: String = "laravel",
-                          outputPath: String = "./example/output/") {
+  final case class RawCfg(
+      mode: String = "check",
+      modelFile: String = "./examples/registration/registration.model",
+      implementationPath: String = "./examples/registration/impl/",
+      backend: String = "laravel",
+      outputPath: String = "./examples/registration/output/") {
     lazy val toConfig: Either[String, Config] = this.mode match {
       case "check" =>
         Right(CheckConfig(this.modelFile))
