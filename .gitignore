@@ -1,7 +1,7 @@
-/example/output/app/Components
-/example/output/app/Providers/GeneratedRouteServiceProvider.php
-/example/output/app/SWSG
-/example/output/routes/generated.php
+/examples/*/output/app/Components
+/examples/*/output/app/Providers/GeneratedRouteServiceProvider.php
+/examples/*/output/app/SWSG
+/examples/*/output/routes/generated.php
 /js/target/
 /jvm/target/
 /project/project/

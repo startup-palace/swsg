@@ -9,19 +9,19 @@ SWSG is a tool that verifies the consitency of web services models and generate 
 - run the precompiled JAR: `java -jar swsg.jar --help`
 - **or** run from SBT: `./sbt "run --help"`
 
-You can check the [example model](example/registration.model) by running:
+You can check the [example model](examples/registration/registration.model) by running:
 
 ```text
-java -jar swsg.jar check --model example/registration.model
+java -jar swsg.jar check --model examples/registration/registration.model
 ```
 
-You can generate web services from the [example model](example/registration.model) and the [example implementation](example/impl/) by running:
+You can generate web services from the [example model](examples/registration/registration.model) and the [example implementation](examples/registration/impl/) by running:
 
 ```text
-java -jar swsg.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/
+java -jar swsg.jar gen --model examples/registration/registration.model --implementation examples/registration/impl/ --backend laravel --output examples/registration/output/
 ```
 
-*The generated app can be run following the same step as done in the `test_gen_example` in [.gitlab-ci.yml](.gitlab-ci.yml).*
+*The generated app can be run following the same step as done in the `test_gen_registration_example` in [.gitlab-ci.yml](.gitlab-ci.yml).*
 
 ## How to compile
 
