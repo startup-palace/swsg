@@ -2,7 +2,7 @@ import org.scalatest._
 import swsg._
 import swsg.Model._
 
-class ServiceParhValiditySpec extends FlatSpec with Matchers {
+class ServicePathValiditySpec extends FlatSpec with Matchers {
   "Model verification" should "fail if a service has not exactly the same path parameters as those actually in the path" in {
     val m = Model(
       Set.empty,
