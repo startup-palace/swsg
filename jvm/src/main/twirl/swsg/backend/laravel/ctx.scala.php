@@ -6,10 +6,12 @@ namespace @Laravel.swsgNamespace;
 class Ctx
 {
     protected $context;
+    protected $shadowedContext;
 
     public function __construct(array $context = [])
     {
         $this->context = $context;
+        $this->shadowedContext = [];
     }
 
     public function __toString()
@@ -55,11 +57,35 @@ class Ctx
         return $this;
     }
 
-    public function unsafeRename(string $source, string $target)
+    public function unsafeShadow(string $source, string $target)
+    {
+        $value = $this->get($source);
+        $this->rem($source);
+
+        if ($this->has($target)) {
+            $shadowed = $this->get($target);
+            $this->shadowedContext[$target] = $shadowed;
+            $this->rem($target);
+        }
+
+        $this->add($target, $value);
+
+        return $this;
+    }
+
+    public function unsafeUnshadow(string $source, string $target)
     {
         $value = $this->get($source);
         $this->rem($source);
         $this->add($target, $value);
+
+        if (array_key_exists($source, $this->shadowedContext)) {
+            $shadowed = $this->shadowedContext[$source];
+            $this->add($source, $shadowed);
+            $this->shadowedContext = array_filter($this->shadowedContext, function ($key) use ($source) {
+                return $key !== $source;
+            }, ARRAY_FILTER_USE_KEY);
+        }
 
         return $this;
     }

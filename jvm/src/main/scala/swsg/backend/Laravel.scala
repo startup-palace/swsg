@@ -66,7 +66,7 @@ final case object Laravel extends Backend {
             ci.aliases.find(_.source == v.name) match {
               case None => ""
               case Some(a) =>
-                s"""->unsafeRename("${a.target}", "${a.source}")"""
+                s"""->unsafeShadow("${a.target}", "${a.source}")"""
           })
           .toSet
           .mkString("")
@@ -84,13 +84,13 @@ final case object Laravel extends Backend {
           ci.aliases.find(_.source == v.name) match {
             case None => ""
             case Some(a) =>
-              s"""->unsafeRename("${a.source}", "${a.target}")"""
+              s"""->unsafeUnshadow("${a.source}", "${a.target}")"""
         })
         val remainingPre = (pre -- rem).map(v =>
           ci.aliases.find(_.source == v.name) match {
             case None => ""
             case Some(a) =>
-              s"""->unsafeRename("${a.source}", "${a.target}")"""
+              s"""->unsafeUnshadow("${a.source}", "${a.target}")"""
         })
         (added ++ remainingPre).toSet.mkString("")
       }
