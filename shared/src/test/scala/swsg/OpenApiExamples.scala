@@ -319,9 +319,7 @@ final case object OpenApiExamples {
           }
         },
         "x-swsg-ci": {
-          "component": {
-            "target": "GetAllPets"
-          }
+          "component": "GetAllPets"
         }
       },
       "post": {
@@ -362,9 +360,7 @@ final case object OpenApiExamples {
           }
         },
         "x-swsg-ci": {
-          "component": {
-            "target": "AddPet"
-          }
+          "component": "AddPet"
         }
       }
     },
@@ -407,9 +403,7 @@ final case object OpenApiExamples {
           }
         },
         "x-swsg-ci": {
-          "component": {
-            "target": "FindPet"
-          }
+          "component": "FindPet"
         }
       },
       "delete": {
@@ -443,9 +437,7 @@ final case object OpenApiExamples {
           }
         },
         "x-swsg-ci": {
-          "component": {
-            "target": "DeletePet"
-          }
+          "component": "DeletePet"
         }
       }
     }
@@ -504,19 +496,13 @@ final case object OpenApiExamples {
         "name": "GetAllPets",
         "components": [
           {
-            "component": {
-              "target": "FetchAllPets"
-            }
+            "component": "FetchAllPets"
           },
           {
-            "component": {
-              "target": "FilterPetsByTags"
-            }
+            "component": "FilterPetsByTags"
           },
           {
-            "component": {
-              "target": "LimitPets"
-            },
+            "component": "LimitPets",
             "aliases": [
               {
                 "source": "pets",
@@ -525,9 +511,7 @@ final case object OpenApiExamples {
             ]
           },
           {
-            "component": {
-              "target": "RenderPets"
-            },
+            "component": "RenderPets",
             "aliases": [
               {
                 "source": "pets",
@@ -541,14 +525,10 @@ final case object OpenApiExamples {
         "name": "AddPet",
         "components": [
           {
-            "component": {
-              "target": "CreatePet"
-            }
+            "component": "CreatePet"
           },
           {
-            "component": {
-              "target": "RenderPet"
-            }
+            "component": "RenderPet"
           }
         ]
       },
@@ -556,14 +536,10 @@ final case object OpenApiExamples {
         "name": "FindPet",
         "components": [
           {
-            "component": {
-              "target": "GetPetById"
-            }
+            "component": "GetPetById"
           },
           {
-            "component": {
-              "target": "RenderPet"
-            }
+            "component": "RenderPet"
           }
         ]
       }

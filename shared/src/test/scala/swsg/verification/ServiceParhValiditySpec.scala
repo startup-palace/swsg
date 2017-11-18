@@ -17,7 +17,7 @@ class ServiceParhValiditySpec extends FlatSpec with Matchers {
             ServiceParameter(Path, Variable("test", Str)),
             ServiceParameter(Path, Variable("test2", Str)),
           ),
-          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+          ComponentInstance("Test", Set.empty, Set.empty)
         )
       )
     )

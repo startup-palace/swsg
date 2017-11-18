@@ -71,10 +71,10 @@ class OpenApiSpec extends FlatSpec with Matchers {
           "GetAllPets",
           Set.empty,
           List(
-            ComponentInstance(ComponentRef("FetchAllPets"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("FilterPetsByTags"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("LimitPets"), Set.empty, Set(Alias("pets", "filteredPets"))),
-            ComponentInstance(ComponentRef("RenderPets"), Set.empty, Set(Alias("pets", "limitedPets"))),
+            ComponentInstance("FetchAllPets", Set.empty, Set.empty),
+            ComponentInstance("FilterPetsByTags", Set.empty, Set.empty),
+            ComponentInstance("LimitPets", Set.empty, Set(Alias("pets", "filteredPets"))),
+            ComponentInstance("RenderPets", Set.empty, Set(Alias("pets", "limitedPets"))),
           )),
         AtomicComponent(
           "CreatePet",
@@ -86,8 +86,8 @@ class OpenApiSpec extends FlatSpec with Matchers {
           "AddPet",
           Set.empty,
           List(
-            ComponentInstance(ComponentRef("CreatePet"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("RenderPet"), Set.empty, Set.empty),
+            ComponentInstance("CreatePet", Set.empty, Set.empty),
+            ComponentInstance("RenderPet", Set.empty, Set.empty),
           )),
         AtomicComponent(
           "GetPetById",
@@ -99,8 +99,8 @@ class OpenApiSpec extends FlatSpec with Matchers {
           "FindPet",
           Set.empty,
           List(
-            ComponentInstance(ComponentRef("GetPetById"), Set.empty, Set.empty),
-            ComponentInstance(ComponentRef("RenderPet"), Set.empty, Set.empty),
+            ComponentInstance("GetPetById", Set.empty, Set.empty),
+            ComponentInstance("RenderPet", Set.empty, Set.empty),
           )),
         AtomicComponent(
           "DeletePet",
@@ -117,28 +117,28 @@ class OpenApiSpec extends FlatSpec with Matchers {
             ServiceParameter(Query, Variable("tags", OptionOf(SeqOf(Str)))),
             ServiceParameter(Query, Variable("limit", OptionOf(Integer))),
           ),
-          ComponentInstance(ComponentRef("GetAllPets"), Set.empty, Set.empty)),
+          ComponentInstance("GetAllPets", Set.empty, Set.empty)),
         Service(
           "POST",
           "/pets",
           Set(
             ServiceParameter(Body, Variable("newPet", EntityRef("NewPet"))),
           ),
-          ComponentInstance(ComponentRef("AddPet"), Set.empty, Set.empty)),
+          ComponentInstance("AddPet", Set.empty, Set.empty)),
         Service(
           "GET",
           "/pets/{id}",
           Set(
             ServiceParameter(Path, Variable("id", Integer)),
           ),
-          ComponentInstance(ComponentRef("FindPet"), Set.empty, Set.empty)),
+          ComponentInstance("FindPet", Set.empty, Set.empty)),
         Service(
           "DELETE",
           "/pets/{id}",
           Set(
             ServiceParameter(Path, Variable("id", Integer)),
           ),
-          ComponentInstance(ComponentRef("DeletePet"), Set.empty, Set.empty)),
+          ComponentInstance("DeletePet", Set.empty, Set.empty)),
       ),
     )
 

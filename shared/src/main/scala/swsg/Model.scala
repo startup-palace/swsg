@@ -47,13 +47,11 @@ final case object Model {
                                       params: Set[Variable],
                                       components: Seq[ComponentInstance])
       extends Component
-  final case class ComponentInstance(component: ComponentRef,
+  final case class ComponentInstance(component: Identifier,
                                      bindings: Set[Binding],
                                      aliases: Set[Alias])
   final case class Binding(param: Variable, argument: Term)
   final case class Alias(source: Identifier, target: Identifier)
-
-  final case class ComponentRef(target: Identifier) extends AnyVal
 
   sealed abstract trait Term
   final case class Variable(name: Identifier, `type`: Type) extends Term
@@ -135,14 +133,13 @@ final case object ModelDecoderInstances {
     }
   }
 
-  implicit val decodeComponentRef: Decoder[ComponentRef] = deriveDecoder
   implicit val decodeBinding: Decoder[Binding] = deriveDecoder
   implicit val decodeAlias: Decoder[Alias] = deriveDecoder
 
   implicit val decodeComponentInstance: Decoder[ComponentInstance] = new Decoder[ComponentInstance] {
     final def apply(c: HCursor): Decoder.Result[ComponentInstance] =
       for {
-        component <- c.downField("component").as[ComponentRef]
+        component <- c.downField("component").as[Identifier]
         bindings <- c.downField("bindings").as[Option[Set[Binding]]]
         aliases <- c.downField("aliases").as[Option[Set[Alias]]]
       } yield {

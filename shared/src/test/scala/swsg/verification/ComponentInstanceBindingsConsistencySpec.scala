@@ -17,19 +17,19 @@ class ComponentInstanceBindingsConsistencySpec extends FlatSpec with Matchers {
           Set(Variable("p2", Str), Variable("p3", Integer)),
           Seq(
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Constant(Str, "some value"))),
               Set.empty),
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Constant(Integer, 10))),
               Set.empty),
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Variable("p2", Str))),
               Set.empty),
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Variable("p3", Integer))),
               Set.empty)
           )
@@ -40,7 +40,7 @@ class ComponentInstanceBindingsConsistencySpec extends FlatSpec with Matchers {
                 "\\/",
                 Set.empty,
                 ComponentInstance(
-                  ComponentRef("c1"),
+                  "c1",
                   Set(Binding(Variable("p1", Str), Constant(Integer, 1))),
                   Set.empty)))
     )

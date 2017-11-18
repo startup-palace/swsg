@@ -73,7 +73,7 @@ final case object Laravel extends Backend {
       }
       case _ => ""
     }
-    s"\\${componentNamespace}\\${ci.component.target}::${executeMethod}(new \\${swsgNamespace}\\Params([${params}]), ${ctx}${preInst})"
+    s"\\${componentNamespace}\\${ci.component}::${executeMethod}(new \\${swsgNamespace}\\Params([${params}]), ${ctx}${preInst})"
   }
 
   def postInstanciation(cs: Set[Component], ci: ComponentInstance): String = {

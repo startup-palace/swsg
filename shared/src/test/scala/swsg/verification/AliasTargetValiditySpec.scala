@@ -16,10 +16,10 @@ class AliasTargetValiditySpec extends FlatSpec with Matchers {
           "SanitizeEmails",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "sanitizedEmail")))
           )

@@ -103,19 +103,19 @@ ac
           "Registration",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("ValidateEmail"),
+            ComponentInstance("ValidateEmail",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("CheckDupRegistration"),
+            ComponentInstance("CheckDupRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("CreateRegistration"),
+            ComponentInstance("CreateRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("SaveRegistration"),
+            ComponentInstance("SaveRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("RegistrationSerializer"),
+            ComponentInstance("RegistrationSerializer",
                               Set.empty,
                               Set.empty)
           )
@@ -124,14 +124,14 @@ ac
           "GetAttendees",
           Set(Variable("apiKey", Str)),
           Seq(
-            ComponentInstance(ComponentRef("CheckKey"),
+            ComponentInstance("CheckKey",
                               Set(Binding(Variable("correctKey", Str),
                                           Variable("apiKey", Str))),
                               Set.empty),
-            ComponentInstance(ComponentRef("FetchRegistrations"),
+            ComponentInstance("FetchRegistrations",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("RegistrationsSerializer"),
+            ComponentInstance("RegistrationsSerializer",
                               Set.empty,
                               Set.empty)
           )
@@ -145,7 +145,7 @@ ac
             ServiceParameter(Query, Variable("stuff", SeqOf(Str))),
             ServiceParameter(Query, Variable("whatever", OptionOf(Str))),
           ),
-          ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
+          ComponentInstance("Home", Set.empty, Set.empty)
         ),
         Service(
           "POST",
@@ -154,14 +154,14 @@ ac
             ServiceParameter(Path, Variable("name", Str)),
             ServiceParameter(Path, Variable("email", Str)),
           ),
-          ComponentInstance(ComponentRef("Register"), Set.empty, Set.empty)
+          ComponentInstance("Register", Set.empty, Set.empty)
         ),
         Service(
           "GET",
           "/attendees/{key}",
           Set(ServiceParameter(Path, Variable("key", Str))),
           ComponentInstance(
-            ComponentRef("GetAttendees"),
+            "GetAttendees",
             Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))),
             Set.empty)
         )
@@ -197,11 +197,11 @@ ac
           "SanitizeEmails",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email1"),
                                   Alias("sanitizedEmail", "sanitizedEmail1"))),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email2"),
                                   Alias("sanitizedEmail", "sanitizedEmail2")))
@@ -242,7 +242,7 @@ s
             ServiceParameter(Cookie, Variable("test4", Str)),
             ServiceParameter(Body, Variable("test5", Str)),
           ),
-          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+          ComponentInstance("Test", Set.empty, Set.empty)
         )
       )
     )
@@ -270,7 +270,7 @@ s
           "GET",
           "/",
           Set.empty,
-          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+          ComponentInstance("Test", Set.empty, Set.empty)
         )
       )
     )

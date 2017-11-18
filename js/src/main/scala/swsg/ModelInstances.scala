@@ -28,11 +28,6 @@ final case object ModelInstances {
                "value" -> Json.fromString(a.value.toString))
   }
 
-  implicit val encodeComponentRef: Encoder[ComponentRef] =
-    new Encoder[ComponentRef] {
-      final def apply(a: ComponentRef): Json = Json.fromString(a.target)
-    }
-
   implicit val encodeParameterLocation: Encoder[ParameterLocation] =
     new Encoder[ParameterLocation] {
       final def apply(a: ParameterLocation): Json = Json.fromString(a.toString)

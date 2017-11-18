@@ -17,14 +17,14 @@ class AliasSourceValiditySpec extends FlatSpec with Matchers {
           Set.empty,
           Seq(
             ComponentInstance(
-              ComponentRef("SanitizeEmail"),
+              "SanitizeEmail",
               Set.empty,
               Set(Alias("email", "email1"),
                   Alias("email1", "email2"),
                   Alias("email2", "email"),
                   Alias("sanitizedEmail", "sanitizedEmail1"))
             ),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email2"),
                                   Alias("sanitizedEmail", "sanitizedEmail2")))

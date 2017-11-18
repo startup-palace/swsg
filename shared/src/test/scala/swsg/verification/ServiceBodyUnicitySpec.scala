@@ -18,7 +18,7 @@ class ServiceBodyUnicitySpec extends FlatSpec with Matchers {
             ServiceParameter(Path, Variable("test2", Integer)),
             ServiceParameter(Body, Variable("test3", Integer)),
           ),
-          ComponentInstance(ComponentRef("Test"), Set.empty, Set.empty)
+          ComponentInstance("Test", Set.empty, Set.empty)
         )
       )
     )

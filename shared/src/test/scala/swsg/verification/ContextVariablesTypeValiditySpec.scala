@@ -17,7 +17,7 @@ class ContextVariablesTypeValiditySpec extends FlatSpec with Matchers {
         Service("GET",
                 "/{v4}",
                 Set(ServiceParameter(Path, Variable("v4", Inherited))),
-                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty)))
+                ComponentInstance("c1", Set.empty, Set.empty)))
     )
     val expectedErrors = Set(
       InheritedTypeInContext(ContextElement.AtomicComponent, "c1", "v1"),

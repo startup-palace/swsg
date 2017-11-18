@@ -82,7 +82,7 @@ case class ModelParser(input: ParserInput) extends Parser {
         (n: String,
          bs: Seq[Model.Binding],
          as: Seq[Model.Alias]) =>
-          Model.ComponentInstance(Model.ComponentRef(n), bs.toSet, as.toSet))
+          Model.ComponentInstance(n, bs.toSet, as.toSet))
   }
 
   // Atomic component

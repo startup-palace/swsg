@@ -80,8 +80,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
-        component:
-          target: GetAllPets
+        component: GetAllPets
     post:
       description: Creates a new pet in the store.  Duplicates are allowed
       operationId: addPet
@@ -107,8 +106,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
-        component:
-          target: AddPet
+        component: AddPet
   '/pets/{id}':
     get:
       description: >-
@@ -137,8 +135,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
-        component:
-          target: FindPet
+        component: FindPet
     delete:
       description: deletes a single pet based on the ID supplied
       operationId: deletePet
@@ -160,8 +157,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
-        component:
-          target: DeletePet
+        component: DeletePet
 components:
   schemas:
     Pet:
@@ -194,32 +190,24 @@ components:
   x-swsg-cc:
     - name: GetAllPets
       components:
-        - component:
-            target: FetchAllPets
-        - component:
-            target: FilterPetsByTags
-        - component:
-            target: LimitPets
+        - component: FetchAllPets
+        - component: FilterPetsByTags
+        - component: LimitPets
           aliases:
             - source: pets
               target: filteredPets
-        - component:
-            target: RenderPets
+        - component: RenderPets
           aliases:
             - source: pets
               target: limitedPets
     - name: AddPet
       components:
-        - component:
-            target: CreatePet
-        - component:
-            target: RenderPet
+        - component: CreatePet
+        - component: RenderPet
     - name: FindPet
       components:
-        - component:
-            target: GetPetById
-        - component:
-            target: RenderPet
+        - component: GetPetById
+        - component: RenderPet
   x-swsg-ac:
     - name: FetchAllPets
       add:

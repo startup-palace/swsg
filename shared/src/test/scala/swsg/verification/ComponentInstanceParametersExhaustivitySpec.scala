@@ -19,11 +19,11 @@ class ComponentInstanceParametersExhaustivitySpec
           Set.empty,
           Seq(
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Constant(Str, "some value"))),
               Set.empty),
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Integer), Constant(Integer, 10))),
               Set.empty)
           )
@@ -33,7 +33,7 @@ class ComponentInstanceParametersExhaustivitySpec
         Service("GET",
                 "\\/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty)))
+                ComponentInstance("c1", Set.empty, Set.empty)))
     )
     val expectedErrors = Set(
       MissingArgumentError(Reference.CompositeComponent,
@@ -68,7 +68,7 @@ class ComponentInstanceParametersExhaustivitySpec
           Set(Variable("p2", Str)),
           Seq(
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Variable("p2", Str))),
               Set.empty))
         ),
@@ -77,7 +77,7 @@ class ComponentInstanceParametersExhaustivitySpec
           Set.empty,
           Seq(
             ComponentInstance(
-              ComponentRef("c2"),
+              "c2",
               Set(Binding(Variable("p2", Str), Constant(Str, "some value"))),
               Set.empty))
         )
@@ -104,7 +104,7 @@ class ComponentInstanceParametersExhaustivitySpec
           Set(Variable("p2", Str)),
           Seq(
             ComponentInstance(
-              ComponentRef("c1"),
+              "c1",
               Set(Binding(Variable("p1", Str), Variable("p3", Str))),
               Set.empty))
         ),
@@ -113,7 +113,7 @@ class ComponentInstanceParametersExhaustivitySpec
           Set.empty,
           Seq(
             ComponentInstance(
-              ComponentRef("c2"),
+              "c2",
               Set(Binding(Variable("p2", Str), Constant(Str, "some value"))),
               Set.empty))
         )
