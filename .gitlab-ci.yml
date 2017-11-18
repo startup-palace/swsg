@@ -67,6 +67,19 @@ gen_registration_example:
   tags:
     - docker
 
+gen_petstore_example:
+  <<: *scala
+  stage: examples
+  script:
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model examples/petstore/petstore.json --implementation examples/petstore/impl/ --backend laravel --output examples/petstore/output/
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
+    paths:
+      - examples/petstore/output/
+    expire_in: 1 day
+  tags:
+    - docker
+
 gui:
   stage: examples
   image: debian
@@ -82,13 +95,26 @@ gui:
   tags:
     - docker
 
-test_gen_registration_example:
+test_registration_example:
   image: composer
   stage: test_examples
   dependencies:
     - gen_registration_example
   script:
     - cd examples/registration/output/
+    - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
+    - composer install --no-progress
+    - ./vendor/bin/phpunit
+  tags:
+    - docker
+
+test_petstore_example:
+  image: composer
+  stage: test_examples
+  dependencies:
+    - gen_petstore_example
+  script:
+    - cd examples/petstore/output/
     - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
     - composer install --no-progress
     - ./vendor/bin/phpunit
