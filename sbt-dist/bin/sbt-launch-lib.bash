@@ -12,7 +12,7 @@ declare -a scalac_args
 declare -a sbt_commands
 declare java_cmd=java
 declare java_version
-declare init_sbt_version="1.0.3"
+declare init_sbt_version="1.0.4"
 
 declare SCRIPT=$0
 while [ -h "$SCRIPT" ] ; do
@@ -118,7 +118,7 @@ get_mem_opts () {
 }
 
 get_gc_opts () {
-  local older_than_9="$(echo "$java_version < 9" | bc)"
+  local older_than_9="$(expr $java_version "<" 9)"
 
   if [[ "$older_than_9" == "1" ]]; then
     # don't need to worry about gc
@@ -204,32 +204,32 @@ syncPreloaded() {
 checkJava() {
   local required_version="$1"
   # Now check to see if it's a good enough version
-  local good_enough="$(echo "$java_version >= $required_version" | bc)"
+  local good_enough="$(expr $java_version ">=" $required_version)"
   if [[ "$java_version" == "" ]]; then
     echo
-    echo No java installations was detected.
-    echo Please go to http://www.java.com/getjava/ and download
+    echo "No Java Development Kit (JDK) installation was detected."
+    echo Please go to http://www.oracle.com/technetwork/java/javase/downloads/ and download.
     echo
     exit 1
   elif [[ "$good_enough" != "1" ]]; then
     echo
-    echo The java installation you have is not up to date
+    echo "The Java Development Kit (JDK) installation you have is not up to date."
     echo $script_name requires at least version $required_version+, you have
     echo version $java_version
     echo
-    echo Please go to http://www.java.com/getjava/ and download
-    echo a valid Java Runtime and install before running $script_name.
+    echo Please go to http://www.oracle.com/technetwork/java/javase/downloads/ and download
+    echo a valid JDK and install before running $script_name.
     echo
     exit 1
   fi
 }
 
 copyRt() {
-  local at_least_9="$(echo "$java_version >= 9" | bc)"
+  local at_least_9="$(expr $java_version ">=" 9)"
   if [[ "$at_least_9" == "1" ]]; then
     rtexport=$(rt_export_file)
     java9_ext=$("$java_cmd" ${JAVA_OPTS} ${SBT_OPTS:-$default_sbt_opts} ${java_args[@]} \
-      -jar "$rtexport" --rt-ext-dir)
+      -jar "$rtexport" --rt-ext-dir | grep -v Listening)
     java9_rt=$(echo "$java9_ext/rt.jar")
     vlog "[copyRt] java9_rt = '$java9_rt'"
     if [[ ! -f "$java9_rt" ]]; then

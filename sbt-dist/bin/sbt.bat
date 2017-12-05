@@ -53,7 +53,7 @@ rem We use the value of the JAVA_OPTS environment variable if defined, rather th
 set _JAVA_OPTS=%JAVA_OPTS%
 if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 
-set INIT_SBT_VERSION="1.0.3"
+set INIT_SBT_VERSION="1.0.4"
 
 :args_loop
 if "%~1" == "" goto args_end
@@ -118,12 +118,12 @@ if /I "%JAVA_VERSION%" GEQ "%required_version%" (
   exit /B 0
 )
 echo.
-echo The java installation you have is not up to date
+echo The Java Development Kit (JDK) installation you have is not up to date.
 echo sbt requires at least version %required_version%+, you have
 echo version %JAVA_VERSION%
 echo.
-echo Please go to http://www.java.com/getjava/ and download
-echo a valid Java Runtime and install before running sbt.
+echo Please go to http://www.oracle.com/technetwork/java/javase/downloads/ and download
+echo a valid JDK and install before running sbt.
 echo.
 exit /B 1
 
