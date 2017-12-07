@@ -9,6 +9,8 @@ SWSG is a tool that verifies the consitency of web services models and generate 
 - run the precompiled JAR: `java -jar swsg.jar --help`
 - **or** run from SBT: `./sbt "run --help"`
 
+### Registration example
+
 You can check the [example model](examples/registration/registration.model) by running:
 
 ```text
@@ -22,6 +24,19 @@ java -jar swsg.jar gen --model examples/registration/registration.model --implem
 ```
 
 *The generated app can be run following the same step as done in the `test_gen_registration_example` in [.gitlab-ci.yml](.gitlab-ci.yml).*
+
+### Petstore example
+
+This example uses an extended OpenAPI model as an input.
+SWSG extensions for OpenAPI are specified [in this document](openapi-extensions-specification/1.0.0.md).
+
+The example model is available here: [JSON](example/petstore/petstore.json) [YAML](example/petstore/petstore.yaml)
+
+You can generate web services from the [example JSON model](examples/petstore/petstore.json) and the [example implementation](examples/petstore/impl/) by running:
+
+```text
+java -jar swsg.jar gen --model examples/petstore/petstore.json --implementation examples/petstore/impl/ --backend laravel --output examples/petstore/output/
+```
 
 ## How to compile
 
