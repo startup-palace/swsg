@@ -53,7 +53,7 @@ rem We use the value of the JAVA_OPTS environment variable if defined, rather th
 set _JAVA_OPTS=%JAVA_OPTS%
 if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 
-set INIT_SBT_VERSION="1.0.4"
+set INIT_SBT_VERSION=1.1.0
 
 :args_loop
 if "%~1" == "" goto args_end
@@ -129,18 +129,17 @@ exit /B 1
 
 :copyrt
 if /I "%JAVA_VERSION%" GEQ "9" (
-  set rtexport="%SBT_HOME%java9-rt-export.jar"
+  set rtexport=%SBT_HOME%java9-rt-export.jar
 
-  "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "%rtexport%" --rt-ext-dir > "%TEMP%.\rtext.txt"
+  "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "!rtexport!" --rt-ext-dir > "%TEMP%.\rtext.txt"
   set /p java9_ext= < "%TEMP%.\rtext.txt"
-  set java9_rt=%java9_ext%\rt.jar
+  set java9_rt=!java9_ext!\rt.jar
 
-  if not exist "%java9_rt%" (
-    echo Copying runtime jar.
-    mkdir "%java9_ext%"
-    "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "%rtexport%" "%java9_rt%"
+  if not exist "!java9_rt!" (
+    mkdir "!java9_ext!"
+    "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "!rtexport!" "!java9_rt!"
   )
-  set _JAVA_OPTS=!_JAVA_OPTS! -Dscala.ext.dirs="%java9_ext%"
+  set _JAVA_OPTS=!_JAVA_OPTS! -Dscala.ext.dirs="!java9_ext!"
 
   rem check to see if a GC has been set in the opts
   echo !_JAVA_OPTS! | findstr /r "Use.*GC" >nul
@@ -162,7 +161,7 @@ set PRELOAD_SBT_JAR="%UserProfile%\.sbt\preloaded\org.scala-sbt\sbt\%INIT_SBT_VE
 if /I "%JAVA_VERSION%" GEQ "1.8" (
   where robocopy >nul 2>nul
   if %ERRORLEVEL% equ 0 (
-    echo %PRELOAD_SBT_JAR%
+    REM echo %PRELOAD_SBT_JAR%
     if not exist %PRELOAD_SBT_JAR% (
       if exist "%SBT_HOME%\..\lib\local-preloaded\" (
         echo 'about to robocopy'
