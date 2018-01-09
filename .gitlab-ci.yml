@@ -1,7 +1,7 @@
 variables:
   DEBIAN_FRONTEND: noninteractive
   COMPOSER_NO_INTERACTION: "1"
-  COURSIER_VERSION: 1.0.0-RC13
+  COURSIER_VERSION: 1.0.0
   SCALA_VERSION: "2.12"
   JAR_NAME: "swsg"
   NODE_VERSION: "9"
@@ -12,7 +12,7 @@ stages:
   - test_examples
 
 .scala-job: &scala
-  image: hseeberger/scala-sbt:8u151-2.12.4-1.0.2
+  image: hseeberger/scala-sbt:8u151-2.12.4-1.0.4
   before_script:
     - mkdir -p ~/.sbt/0.13/plugins
     - echo "addSbtPlugin(\"io.get-coursier\" % \"sbt-coursier\" % \"$COURSIER_VERSION\")" >> ~/.sbt/0.13/plugins/coursier.sbt
