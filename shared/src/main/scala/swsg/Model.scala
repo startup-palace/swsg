@@ -89,6 +89,7 @@ final case object ModelDecoderInstances {
     final def apply(c: HCursor): Decoder.Result[Type] = {
       c.as[String] match {
         case Right("Str") => Right(Str)
+        case Right("String") => Right(Str)
         case Right("Boolean") => Right(Boolean)
         case Right("Integer") => Right(Integer)
         case Right("Float") => Right(Float)
