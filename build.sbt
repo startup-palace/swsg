@@ -6,7 +6,7 @@ scalaVersion := scalaVer
 
 version := "0.1.0-SNAPSHOT"
 
-lazy val circeVersion = "0.9.0"
+lazy val circeVersion = "0.9.0-M2"
 
 lazy val catsVersion = "1.0.1"
 
