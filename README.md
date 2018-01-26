@@ -51,7 +51,7 @@ java -jar swsg.jar gen --model examples/petstore/petstore.json --implementation 
 See [the LICENSE file](LICENSE).
 
 ```text
-Copyright 2017 David Sferruzza / Startup Palace
+Copyright 2017-2018 David Sferruzza / Startup Palace
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
