@@ -29,18 +29,21 @@ cc
 
 s
   method GET
-  url \/
+  path /
+  param query stuff: Seq(String)
+  param query whatever: Option(String)
   ci Home
 s
   method POST
-  url \/register\/(?<name>[^/]+)\/(?<email>[^/]+)
-  params (name: String, email: String)
+  path /register/{name}/{email}
+  param path name: String
+  param path email: String
   ci Register
 
 s
   method GET
-  url \/attendees\/(?<key>[^/]+)
-  params (key: String)
+  path /attendees/{key}
+  param path key: String
   ci GetAttendees(apiKey = "myKey")
 
 ac
@@ -100,19 +103,19 @@ ac
           "Registration",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("ValidateEmail"),
+            ComponentInstance("ValidateEmail",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("CheckDupRegistration"),
+            ComponentInstance("CheckDupRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("CreateRegistration"),
+            ComponentInstance("CreateRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("SaveRegistration"),
+            ComponentInstance("SaveRegistration",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("RegistrationSerializer"),
+            ComponentInstance("RegistrationSerializer",
                               Set.empty,
                               Set.empty)
           )
@@ -121,14 +124,14 @@ ac
           "GetAttendees",
           Set(Variable("apiKey", Str)),
           Seq(
-            ComponentInstance(ComponentRef("CheckKey"),
+            ComponentInstance("CheckKey",
                               Set(Binding(Variable("correctKey", Str),
                                           Variable("apiKey", Str))),
                               Set.empty),
-            ComponentInstance(ComponentRef("FetchRegistrations"),
+            ComponentInstance("FetchRegistrations",
                               Set.empty,
                               Set.empty),
-            ComponentInstance(ComponentRef("RegistrationsSerializer"),
+            ComponentInstance("RegistrationsSerializer",
                               Set.empty,
                               Set.empty)
           )
@@ -137,22 +140,28 @@ ac
       Seq(
         Service(
           "GET",
-          "\\/",
-          Set.empty,
-          ComponentInstance(ComponentRef("Home"), Set.empty, Set.empty)
+          "/",
+          Set(
+            ServiceParameter(Query, Variable("stuff", SeqOf(Str))),
+            ServiceParameter(Query, Variable("whatever", OptionOf(Str))),
+          ),
+          ComponentInstance("Home", Set.empty, Set.empty)
         ),
         Service(
           "POST",
-          "\\/register\\/(?<name>[^/]+)\\/(?<email>[^/]+)",
-          Set(Variable("name", Str), Variable("email", Str)),
-          ComponentInstance(ComponentRef("Register"), Set.empty, Set.empty)
+          "/register/{name}/{email}",
+          Set(
+            ServiceParameter(Path, Variable("name", Str)),
+            ServiceParameter(Path, Variable("email", Str)),
+          ),
+          ComponentInstance("Register", Set.empty, Set.empty)
         ),
         Service(
           "GET",
-          "\\/attendees\\/(?<key>[^/]+)",
-          Set(Variable("key", Str)),
+          "/attendees/{key}",
+          Set(ServiceParameter(Path, Variable("key", Str))),
           ComponentInstance(
-            ComponentRef("GetAttendees"),
+            "GetAttendees",
             Set(Binding(Variable("apiKey", Str), Constant(Str, "myKey"))),
             Set.empty)
         )
@@ -188,11 +197,11 @@ ac
           "SanitizeEmails",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email1"),
                                   Alias("sanitizedEmail", "sanitizedEmail1"))),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email2"),
                                   Alias("sanitizedEmail", "sanitizedEmail2")))
@@ -200,6 +209,70 @@ ac
         )
       ),
       Seq.empty
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
+
+  it should "work with all possible parameter locations" in {
+    val input =
+      """
+s
+  method GET
+  path /
+  param query test1: String
+  param header test2: String
+  param path test3: String
+  param cookie test4: String
+  param body test5: String
+  ci Test
+"""
+    val model = Model(
+      Set.empty,
+      Set.empty,
+      Seq(
+        Service(
+          "GET",
+          "/",
+          Set(
+            ServiceParameter(Query, Variable("test1", Str)),
+            ServiceParameter(Header, Variable("test2", Str)),
+            ServiceParameter(Path, Variable("test3", Str)),
+            ServiceParameter(Cookie, Variable("test4", Str)),
+            ServiceParameter(Body, Variable("test5", Str)),
+          ),
+          ComponentInstance("Test", Set.empty, Set.empty)
+        )
+      )
+    )
+    val parsedModel = ModelParser.parse(input)
+    parsedModel shouldBe a[Right[_, _]]
+    parsedModel.right.get shouldBe model
+  }
+
+  it should "handle comments" in {
+    val input =
+      """
+//comment
+s
+  method GET // comment
+  path /
+  // comment
+// comment
+  ci Test
+"""
+    val model = Model(
+      Set.empty,
+      Set.empty,
+      Seq(
+        Service(
+          "GET",
+          "/",
+          Set.empty,
+          ComponentInstance("Test", Set.empty, Set.empty)
+        )
+      )
     )
     val parsedModel = ModelParser.parse(input)
     parsedModel shouldBe a[Right[_, _]]

@@ -6,7 +6,9 @@ scalaVersion := scalaVer
 
 version := "0.1.0-SNAPSHOT"
 
-lazy val circeVersion = "0.8.0"
+lazy val circeVersion = "0.9.1"
+
+lazy val catsVersion = "1.0.1"
 
 lazy val root = project.in(file(".")).aggregate(js, jvm)
 
@@ -21,8 +23,11 @@ lazy val swsg = crossProject
       "-Xfatal-warnings",
       "-Xfuture",
       "-Xlint",
-      "-Xlint:-missing-interpolator"
+      "-Xlint:-missing-interpolator",
+      "-Ypartial-unification"
     ),
+    scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Xfatal-warnings")),
+    scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
     libraryDependencies ++= Seq(
       "org.scalatest" %%% "scalatest" % "3.0.4" % Test,
       "com.chuusai"   %%% "shapeless" % "2.3.2",
@@ -34,7 +39,12 @@ lazy val swsg = crossProject
       "io.circe" %%% "circe-generic-extras",
       "io.circe" %%% "circe-parser"
     ).map(_ % circeVersion),
-    scalafmtVersion in ThisBuild := "1.3.0",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core",
+      "org.typelevel" %%% "cats-kernel",
+      "org.typelevel" %%% "cats-macros"
+    ).map(_ % catsVersion),
+    scalafmtVersion in ThisBuild := "1.4.0",
     scalafmtOnCompile in ThisBuild := true,
     scalafmtTestOnCompile in ThisBuild := true,
     ignoreErrors in (ThisBuild, scalafmt) := false,
@@ -49,7 +59,7 @@ lazy val swsg = crossProject
   )
   .jvmSettings(
     libraryDependencies ++= Seq(
-      "com.github.pathikrit" %% "better-files"  % "3.2.0",
+      "com.github.pathikrit" %% "better-files"  % "3.4.0",
       "com.github.scopt"     %% "scopt"         % "3.7.0",
       "org.scala-js"         %% "scalajs-stubs" % scalaJSVersion % "provided"
     ),

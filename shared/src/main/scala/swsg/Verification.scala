@@ -22,6 +22,8 @@ final case object ConsistencyVerification extends AutoVerification {
       ComponentNameUnicity, // Component name uniqueness
       EntityNameUnicity, // Entity name uniqueness
       AttributeNameUnicity, // Same entity’s attributes name uniqueness
+      ServiceParameterNameUnicity,
+      ServiceBodyUnicity,
       ReferenceConsistency
     ),
     Set(
@@ -32,7 +34,8 @@ final case object ConsistencyVerification extends AutoVerification {
       AliasSourceUnicity,
       AliasTargetUnicity,
       AliasSourceValidity,
-      AliasTargetValidity
+      AliasTargetValidity,
+      ServicePathValidity
     ),
     Set(
       ComponentContextImmutability, // Context immutability

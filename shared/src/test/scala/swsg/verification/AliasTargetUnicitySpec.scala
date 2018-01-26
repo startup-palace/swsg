@@ -16,11 +16,11 @@ class AliasTargetUnicitySpec extends FlatSpec with Matchers {
           "SanitizeEmails",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email1"),
                                   Alias("sanitizedEmail", "email1"))),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email2"),
                                   Alias("sanitizedEmail", "sanitizedEmail2")))

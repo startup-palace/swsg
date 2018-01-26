@@ -12,7 +12,7 @@ final case object ContextVariablesTypeValidity extends Verification {
       }
 
     val serviceErrors = model.services.flatMap(s =>
-      checkVariables(ContextElement.Service, s.name)(s.params))
+      checkVariables(ContextElement.Service, s.name)(s.params.map(_.variable)))
 
     acErrors ++ serviceErrors
   }

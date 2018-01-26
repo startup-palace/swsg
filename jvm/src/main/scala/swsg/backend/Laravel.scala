@@ -16,7 +16,7 @@ final case object Laravel extends Backend {
   val swsgDir            = "app/SWSG/"
 
   def generate(model: Model, impl: Implementation): Map[String, String] = {
-    val routeFile = php.routes(model.components, model.services)
+    val routeFile = php.routes(model)
     val atomicComponentFiles = model.atomicComponents
       .map(c => impl.atomicComponents.find(_._1 == c.name).get)
       .map(acImpl => s"${componentBaseDir}/${acImpl._1}.php" -> acImpl._2)
@@ -66,14 +66,14 @@ final case object Laravel extends Backend {
             ci.aliases.find(_.source == v.name) match {
               case None => ""
               case Some(a) =>
-                s"""->unsafeRename("${a.target}", "${a.source}")"""
+                s"""->unsafeShadow("${a.target}", "${a.source}")"""
           })
           .toSet
           .mkString("")
       }
       case _ => ""
     }
-    s"\\${componentNamespace}\\${ci.component.target}::${executeMethod}(new \\${swsgNamespace}\\Params([${params}]), ${ctx}${preInst})"
+    s"\\${componentNamespace}\\${ci.component}::${executeMethod}(new \\${swsgNamespace}\\Params([${params}]), ${ctx}${preInst})"
   }
 
   def postInstanciation(cs: Set[Component], ci: ComponentInstance): String = {
@@ -84,17 +84,92 @@ final case object Laravel extends Backend {
           ci.aliases.find(_.source == v.name) match {
             case None => ""
             case Some(a) =>
-              s"""->unsafeRename("${a.source}", "${a.target}")"""
+              s"""->unsafeUnshadow("${a.source}", "${a.target}")"""
         })
         val remainingPre = (pre -- rem).map(v =>
           ci.aliases.find(_.source == v.name) match {
             case None => ""
             case Some(a) =>
-              s"""->unsafeRename("${a.source}", "${a.target}")"""
+              s"""->unsafeUnshadow("${a.source}", "${a.target}")"""
         })
         (added ++ remainingPre).toSet.mkString("")
       }
       case _ => ""
     }
+  }
+
+  def getParameters(p: ServiceParameter): String = {
+    final case class P(name: String, value: String) {
+      lazy val toPHP: String = {
+        s"'$name' => $value"
+      }
+    }
+
+    val value = p.location match {
+      case Query  => s"$$req->query('${p.variable.name}')"
+      case Header => s"$$req->header('${p.variable.name}')"
+      case Path   => s"$$req->route()->parameter('${p.variable.name}')"
+      case Cookie => s"$$req->cookie('${p.variable.name}')"
+      case Body =>
+        p.variable.`type` match {
+          case Str => "$req->getContent()"
+          case _   => "json_decode($req->getContent(), true)"
+        }
+    }
+
+    P(p.variable.name, value).toPHP
+  }
+
+  def genValidatorRules(entities: Set[Entity])(
+      p: ServiceParameter): Seq[String] = {
+    final case class Validator(name: String, rules: Seq[String]) {
+      lazy val one: Seq[Validator] = Seq(this)
+
+      lazy val addRequiredRule: Validator = {
+        if (this.rules.contains("nullable")) {
+          this
+        } else {
+          this.copy(rules = this.rules :+ "required")
+        }
+      }
+
+      lazy val toPHP: String = {
+        s"'$name' => '${rules.mkString("|")}'"
+      }
+    }
+    final case object Validator {
+      def addRulesToFirst(rules: Seq[String],
+                          validators: Seq[Validator]): Seq[Validator] = {
+        validators.headOption match {
+          case Some(h) =>
+            Seq(h.copy(rules = h.rules ++ rules)) ++ validators.tail
+          case None => validators
+        }
+      }
+    }
+
+    def getValidators(name: String)(t: Type): Seq[Validator] = t match {
+      case OptionOf(subtype) =>
+        Validator.addRulesToFirst(Seq("nullable"), getValidators(name)(subtype))
+      case SeqOf(subtype) =>
+        Validator(name, Seq("array")).one ++ getValidators(name + ".*")(subtype)
+      case ref @ EntityRef(_) => {
+        val entity = Reference.resolve(ref, entities).get
+        entity.attributes.toSeq
+          .flatMap(a => getValidators(name + "." + a.name)(a.`type`))
+          .map(_.addRequiredRule)
+      }
+      case Str       => Validator(name, Seq("string")).one
+      case Boolean   => Validator(name, Seq("boolean")).one
+      case Integer   => Validator(name, Seq("integer")).one
+      case Float     => Validator(name, Seq("numeric")).one
+      case Date      => Validator(name, Seq("date")).one
+      case DateTime  => Validator(name, Seq("date")).one
+      case Inherited => Seq.empty
+    }
+
+    Seq(p.variable.`type`)
+      .flatMap(getValidators(p.variable.name))
+      .map(_.toPHP)
   }
 }

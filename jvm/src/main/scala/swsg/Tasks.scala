@@ -4,10 +4,30 @@ import better.files._
 import swsg.backend._
 
 final case object Tasks {
-  def check(modelFile: String): Either[String, Model] = {
+  def readModel(modelFile: String): Either[String, Model] = {
+    import io.circe.parser.{parse => parseJson}
+
     val serializedModel: String = File(modelFile).contentAsString
 
-    ModelParser.parse(serializedModel) match {
+    val parsedModel = parseJson(serializedModel) match {
+      case Right(_) =>
+        val model = OpenApiConverter
+          .fromJson(serializedModel)
+          .left
+          .map(_.map(_.toString))
+          .flatMap(OpenApiConverter.toModel)
+          .left
+          .map(_.mkString("\n"))
+        ("OpenAPI Json", model)
+      case Left(_) => ("Custom syntax", ModelParser.parse(serializedModel))
+    }
+
+    println(s"Model format: ${parsedModel._1}")
+    parsedModel._2
+  }
+
+  def check(modelFile: String): Either[String, Model] = {
+    readModel(modelFile) match {
       case Left(e) => Left(e)
       case Right(model) => {
         ConsistencyVerification.run(model).toVector match {

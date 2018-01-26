@@ -1,6 +1,6 @@
 package swsg
 
-import Model.{Component, ComponentRef, Entity, EntityRef}
+import Model.{Component, Identifier, Entity, EntityRef}
 
 final case object Reference {
   sealed abstract trait Source
@@ -10,10 +10,10 @@ final case object Reference {
   final case object Component          extends Source with Target
   final case object Entity             extends Source with Target
 
-  def resolve(ref: ComponentRef,
+  def resolve(ref: Identifier,
               components: Set[Component]): Option[Component] =
-    components.find(_.name == ref.target)
+    components.find(_.name == ref)
 
-  def resolve(ref: EntityRef, components: Set[Entity]): Option[Entity] =
-    components.find(_.name == ref.target)
+  def resolve(ref: EntityRef, entities: Set[Entity]): Option[Entity] =
+    entities.find(_.name == ref.entity)
 }

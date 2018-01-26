@@ -13,7 +13,7 @@ final case object ReferenceConsistency extends AutoVerification {
 
 final case object ComponentRefConsistency extends Verification {
   def run(model: Model): Seq[BrokenReferenceError] = {
-    val references: Seq[(Reference.Source, Identifier, ComponentRef)] =
+    val references: Seq[(Reference.Source, Identifier, Identifier)] =
       model.compositeComponents.toSeq.flatMap { cc =>
         cc.components.map(ci =>
           (Reference.CompositeComponent, cc.name, ci.component))
@@ -21,12 +21,12 @@ final case object ComponentRefConsistency extends Verification {
         Seq((Reference.Service, s.name, s.component.component))
       }
     val checkedReferences
-      : Seq[((Reference.Source, Identifier, ComponentRef), Boolean)] =
+      : Seq[((Reference.Source, Identifier, Identifier), Boolean)] =
       references.map { r =>
         (r, Reference.resolve(r._3, model.components).isDefined)
       }
     checkedReferences.filter(!_._2).map(_._1).map { cr =>
-      BrokenReferenceError(cr._1, cr._2, Reference.Component, cr._3.target)
+      BrokenReferenceError(cr._1, cr._2, Reference.Component, cr._3)
     }
   }
 }
@@ -52,7 +52,7 @@ final case object EntityRefConsistency extends Verification {
         (r, Reference.resolve(r._3, model.entities).isDefined)
       }
     checkedReferences.filter(!_._2).map(_._1).map { cr =>
-      BrokenReferenceError(cr._1, cr._2, Reference.Entity, cr._3.target)
+      BrokenReferenceError(cr._1, cr._2, Reference.Entity, cr._3.entity)
     }
   }
 

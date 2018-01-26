@@ -1,18 +1,18 @@
 variables:
   DEBIAN_FRONTEND: noninteractive
   COMPOSER_NO_INTERACTION: "1"
-  COURSIER_VERSION: 1.0.0-RC13
+  COURSIER_VERSION: 1.0.0
   SCALA_VERSION: "2.12"
   JAR_NAME: "swsg"
-  NODE_VERSION: "8"
+  NODE_VERSION: "9"
 
 stages:
   - build
-  - example
-  - test_example
+  - examples
+  - test_examples
 
 .scala-job: &scala
-  image: hseeberger/scala-sbt:8u141_2.12.4_1.0.2
+  image: hseeberger/scala-sbt:8u151-2.12.4-1.1.0
   before_script:
     - mkdir -p ~/.sbt/0.13/plugins
     - echo "addSbtPlugin(\"io.get-coursier\" % \"sbt-coursier\" % \"$COURSIER_VERSION\")" >> ~/.sbt/0.13/plugins/coursier.sbt
@@ -43,31 +43,44 @@ build:
   tags:
     - docker
 
-check_example:
+check_registration_example:
   <<: *scala
-  stage: example
+  stage: examples
   dependencies:
     - build
   script:
-    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar check --model example/registration.model
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar check --model examples/registration/registration.model
   tags:
     - docker
 
-gen_example:
+gen_registration_example:
   <<: *scala
-  stage: example
+  stage: examples
   script:
-    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model example/registration.model --implementation example/impl/ --backend laravel --output example/output/
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model examples/registration/registration.model --implementation examples/registration/impl/ --backend laravel --output examples/registration/output/
   artifacts:
     name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
     paths:
-      - example/output/
+      - examples/registration/output/
+    expire_in: 1 day
+  tags:
+    - docker
+
+gen_petstore_example:
+  <<: *scala
+  stage: examples
+  script:
+    - java -jar jvm/target/scala-$SCALA_VERSION/$JAR_NAME.jar gen --model examples/petstore/petstore.json --implementation examples/petstore/impl/ --backend laravel --output examples/petstore/output/
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_SHA"
+    paths:
+      - examples/petstore/output/
     expire_in: 1 day
   tags:
     - docker
 
 gui:
-  stage: example
+  stage: examples
   image: debian
   script:
     - mv js/target/scala-$SCALA_VERSION/$JAR_NAME-fastopt.js gui/
@@ -81,13 +94,26 @@ gui:
   tags:
     - docker
 
-test_gen_example:
+test_registration_example:
   image: composer
-  stage: test_example
+  stage: test_examples
   dependencies:
-    - gen_example
+    - gen_registration_example
   script:
-    - cd example/output/
+    - cd examples/registration/output/
+    - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
+    - composer install --no-progress
+    - ./vendor/bin/phpunit
+  tags:
+    - docker
+
+test_petstore_example:
+  image: composer
+  stage: test_examples
+  dependencies:
+    - gen_petstore_example
+  script:
+    - cd examples/petstore/output/
     - sed -i 's/App\\Providers\\RouteServiceProvider::class/App\\Providers\\GeneratedRouteServiceProvider::class/' config/app.php
     - composer install --no-progress
     - ./vendor/bin/phpunit

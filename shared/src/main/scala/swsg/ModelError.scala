@@ -15,6 +15,23 @@ final case class AttributeNameUnicityError(entityName: Identifier,
                                            occurences: Int)
     extends ModelError
 
+final case class ServiceParameterNameUnicityError(serviceName: Identifier,
+                                                  parameterName: Identifier,
+                                                  occurences: Int)
+    extends ModelError
+
+final case class ServiceBodyUnicityError(serviceName: Identifier,
+                                         occurences: Int)
+    extends ModelError
+
+final case class MissingParameterInPathError(serviceName: Identifier,
+                                             parameterName: Identifier)
+    extends ModelError
+
+final case class UnknownParameterInPathError(serviceName: Identifier,
+                                             parameterName: Identifier)
+    extends ModelError
+
 final case class BrokenReferenceError(
     sourceType: Reference.Source,
     sourceName: Identifier,

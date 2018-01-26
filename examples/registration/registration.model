@@ -1,0 +1,108 @@
+e
+  name Registration
+  attributes (name: String, email: String, date: DateTime)
+
+s
+  method POST
+  path /register/{name}/{email}
+  param path name: String
+  param path email: String
+  ci Registration
+s
+  method GET
+  path /attendees
+  param query key: String
+  ci GetAttendees(apiKey = "mykey")
+
+cc
+  name Registration
+  ci ValidateEmail
+  ci CheckDupRegistration
+  ci CreateRegistration
+  ci SaveRegistration
+  ci RegistrationSerializer
+cc
+  name GetAttendees
+  params (apiKey: String)
+  ci CheckKey(correctKey = apiKey)<userKey -> key>
+  ci FetchRegistrations
+  ci RegistrationsSerializer
+
+ac
+  name ValidateEmail
+  pre (email: String)
+ac
+  name CheckDupRegistration
+  pre (name: String, email: String)
+ac
+  name CreateRegistration
+  pre (name: String, email: String)
+  add (registration: Registration)
+ac
+  name SaveRegistration
+  pre (registration: Registration)
+ac
+  name RegistrationSerializer
+  pre (registration: Registration)
+ac
+  name CheckKey
+  params (correctKey: String)
+  pre (userKey: String)
+ac
+  name FetchRegistrations
+  add (registrations: Seq(Registration))
+ac
+  name RegistrationsSerializer
+  pre (registrations: Seq(Registration))
+
+
+
+
+// This is used by the automated test
+
+e
+  name Test
+  attributes (name: String, email: Option(Integer))
+
+s
+  method POST
+  path /test/header
+  param header p1: Str
+  param header p2: Option(Int)
+  ci Test
+
+s
+  method GET
+  path /test/path/{p1}/path/{p2}
+  param path p1: Str
+  param path p2: Option(Int)
+  ci Test
+
+s
+  method GET
+  path /test/query
+  param query p1: Str
+  param query p2: Seq(Int)
+  param query p3: Option(Int)
+  ci Test
+
+s
+  method POST
+  path /test/body/str
+  param body p1: Str
+  ci Test
+
+s
+  method POST
+  path /test/body/json/entity
+  param body p1: Test
+  ci Test
+
+s
+  method POST
+  path /test/body/json/array
+  param body p1: Seq(Test)
+  ci Test
+
+ac
+  name Test

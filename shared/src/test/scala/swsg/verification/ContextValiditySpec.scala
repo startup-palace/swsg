@@ -11,9 +11,9 @@ class ContextValiditySpec extends FlatSpec with Matchers {
       ),
       Seq(
         Service("GET",
-                "\\/",
+                "/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
+                ComponentInstance("c1", Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -38,14 +38,14 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         CompositeComponent(
           "c3",
           Set.empty,
-          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
-              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
+          Seq(ComponentInstance("c1", Set.empty, Set.empty),
+              ComponentInstance("c2", Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
-                "\\/",
-                Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
+                "/{v1}",
+                Set(ServiceParameter(Path, Variable("v1", Str))),
+                ComponentInstance("c3", Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
@@ -65,14 +65,14 @@ class ContextValiditySpec extends FlatSpec with Matchers {
       ),
       Seq(
         Service("GET",
-                "\\/",
+                "/",
                 Set.empty,
-                ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty))
+                ComponentInstance("c1", Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
     val expectedErrors = Set(
-      ComponentPreconditionError("GET \\/", Seq("c1"), Variable("v1", Str))
+      ComponentPreconditionError("GET /", Seq("c1"), Variable("v1", Str))
     )
 
     errors should contain theSameElementsAs expectedErrors
@@ -95,19 +95,19 @@ class ContextValiditySpec extends FlatSpec with Matchers {
         CompositeComponent(
           "c3",
           Set.empty,
-          Seq(ComponentInstance(ComponentRef("c1"), Set.empty, Set.empty),
-              ComponentInstance(ComponentRef("c2"), Set.empty, Set.empty)))
+          Seq(ComponentInstance("c1", Set.empty, Set.empty),
+              ComponentInstance("c2", Set.empty, Set.empty)))
       ),
       Seq(
         Service("GET",
-                "\\/",
-                Set(Variable("v1", Str)),
-                ComponentInstance(ComponentRef("c3"), Set.empty, Set.empty))
+                "/{v1}",
+                Set(ServiceParameter(Path, Variable("v1", Str))),
+                ComponentInstance("c3", Set.empty, Set.empty))
       )
     )
     val errors = ConsistencyVerification.run(m)
     val expectedErrors = Set(
-      ComponentPreconditionError("GET \\/",
+      ComponentPreconditionError("GET /{v1}",
                                  Seq("c3", "c2"),
                                  Variable("v1", Str))
     )
@@ -128,11 +128,11 @@ class ContextValiditySpec extends FlatSpec with Matchers {
           "SanitizeEmails",
           Set.empty,
           Seq(
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email1"),
                                   Alias("sanitizedEmail", "sanitizedEmail1"))),
-            ComponentInstance(ComponentRef("SanitizeEmail"),
+            ComponentInstance("SanitizeEmail",
                               Set.empty,
                               Set(Alias("email", "email2"),
                                   Alias("sanitizedEmail", "sanitizedEmail2")))
@@ -141,9 +141,12 @@ class ContextValiditySpec extends FlatSpec with Matchers {
       ),
       Seq(
         Service("GET",
-                "\\/",
-                Set(Variable("email1", Str), Variable("email2", Str)),
-                ComponentInstance(ComponentRef("SanitizeEmails"),
+                "/{email1}/{email2}",
+                Set(
+                  ServiceParameter(Path, Variable("email1", Str)),
+                  ServiceParameter(Path, Variable("email2", Str)),
+                ),
+                ComponentInstance("SanitizeEmails",
                                   Set.empty,
                                   Set.empty)))
     )
