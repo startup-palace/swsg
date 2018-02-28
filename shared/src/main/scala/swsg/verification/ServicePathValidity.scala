@@ -10,8 +10,7 @@ final case object ServicePathValidity extends Verification {
 
   private def checkService(s: Service): Seq[ModelError] = {
     val actualParameters = parseParameters(s.path).toVector
-    val expectedParameters = s.params
-      .toVector
+    val expectedParameters = s.params.toVector
       .filter(_.location == Path)
       .map(_.variable.name)
 

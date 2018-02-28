@@ -8,7 +8,8 @@ final case object ServiceParameterNameUnicity extends Verification {
     model.services.flatMap(checkService)
   }
 
-  private def checkService(s: Service): Seq[ServiceParameterNameUnicityError] = {
+  private def checkService(
+      s: Service): Seq[ServiceParameterNameUnicityError] = {
     val sources       = s.params.toVector.map(_.variable.name)
     val uniqueSources = s.params.map(_.variable.name).toVector
     val diff          = sources.diff(uniqueSources)

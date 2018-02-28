@@ -64,14 +64,15 @@ final case object Model {
     lazy val name: String = s"${method} ${path}"
   }
 
-  final case class ServiceParameter(location: ParameterLocation, variable: Variable)
+  final case class ServiceParameter(location: ParameterLocation,
+                                    variable: Variable)
 
   sealed abstract trait ParameterLocation
-  final case object Query extends ParameterLocation
+  final case object Query  extends ParameterLocation
   final case object Header extends ParameterLocation
-  final case object Path extends ParameterLocation
+  final case object Path   extends ParameterLocation
   final case object Cookie extends ParameterLocation
-  final case object Body extends ParameterLocation
+  final case object Body   extends ParameterLocation
 }
 
 final case object ModelDecoderInstances {
@@ -82,21 +83,23 @@ final case object ModelDecoderInstances {
   implicit val config: Configuration = Configuration.default
 
   implicit val decodeEntityRef: Decoder[EntityRef] = deriveDecoder
-  implicit val decodeSeqOf: Decoder[SeqOf] = deriveDecoder
-  implicit val decodeOptionOf: Decoder[OptionOf] = deriveDecoder
+  implicit val decodeSeqOf: Decoder[SeqOf]         = deriveDecoder
+  implicit val decodeOptionOf: Decoder[OptionOf]   = deriveDecoder
 
   val decodeScalarType: Decoder[Type] = new Decoder[Type] {
     final def apply(c: HCursor): Decoder.Result[Type] = {
       c.as[String] match {
-        case Right("Str") => Right(Str)
-        case Right("String") => Right(Str)
-        case Right("Boolean") => Right(Boolean)
-        case Right("Integer") => Right(Integer)
-        case Right("Float") => Right(Float)
-        case Right("Date") => Right(Date)
-        case Right("DateTime") => Right(DateTime)
+        case Right("Str")       => Right(Str)
+        case Right("String")    => Right(Str)
+        case Right("Boolean")   => Right(Boolean)
+        case Right("Integer")   => Right(Integer)
+        case Right("Float")     => Right(Float)
+        case Right("Date")      => Right(Date)
+        case Right("DateTime")  => Right(DateTime)
         case Right("Inherited") => Right(Inherited)
-        case Right(t) => Left(io.circe.DecodingFailure(s"Type '$t' is not supported", c.history))
+        case Right(t) =>
+          Left(
+            io.circe.DecodingFailure(s"Type '$t' is not supported", c.history))
         case Left(e) => Left(e)
       }
     }
@@ -110,10 +113,11 @@ final case object ModelDecoderInstances {
         decodeScalarType,
       )
 
-      val init: Decoder.Result[Type] = Left(io.circe.DecodingFailure("Init", c.history))
+      val init: Decoder.Result[Type] = Left(
+        io.circe.DecodingFailure("Init", c.history))
       decoders.foldLeft(init) {
         case (acc @ Right(_), _) => acc
-        case (Left(_), cur) => cur(c)
+        case (Left(_), cur)      => cur(c)
       }
     }
   }
@@ -129,56 +133,54 @@ final case object ModelDecoderInstances {
     final def apply(c: HCursor): Decoder.Result[Term] = {
       decodeVariable(c) match {
         case Left(_) => decodeConstant(c)
-        case r @ _ => r
+        case r @ _   => r
       }
     }
   }
 
   implicit val decodeBinding: Decoder[Binding] = deriveDecoder
-  implicit val decodeAlias: Decoder[Alias] = deriveDecoder
+  implicit val decodeAlias: Decoder[Alias]     = deriveDecoder
 
-  implicit val decodeComponentInstance: Decoder[ComponentInstance] = new Decoder[ComponentInstance] {
-    final def apply(c: HCursor): Decoder.Result[ComponentInstance] =
-      for {
-        component <- c.downField("component").as[Identifier]
-        bindings <- c.downField("bindings").as[Option[Set[Binding]]]
-        aliases <- c.downField("aliases").as[Option[Set[Alias]]]
-      } yield {
-        ComponentInstance(
-          component,
-          bindings.getOrElse(Set.empty),
-          aliases.getOrElse(Set.empty))
-      }
-  }
+  implicit val decodeComponentInstance: Decoder[ComponentInstance] =
+    new Decoder[ComponentInstance] {
+      final def apply(c: HCursor): Decoder.Result[ComponentInstance] =
+        for {
+          component <- c.downField("component").as[Identifier]
+          bindings  <- c.downField("bindings").as[Option[Set[Binding]]]
+          aliases   <- c.downField("aliases").as[Option[Set[Alias]]]
+        } yield {
+          ComponentInstance(component,
+                            bindings.getOrElse(Set.empty),
+                            aliases.getOrElse(Set.empty))
+        }
+    }
 
-  implicit val decodeAtomicComponent: Decoder[AtomicComponent] = new Decoder[AtomicComponent] {
-    final def apply(c: HCursor): Decoder.Result[AtomicComponent] =
-      for {
-        name <- c.downField("name").as[Identifier]
-        params <- c.downField("params").as[Option[Set[Variable]]]
-        pre <- c.downField("pre").as[Option[Set[Variable]]]
-        add <- c.downField("add").as[Option[Set[Variable]]]
-        rem <- c.downField("rem").as[Option[Set[Variable]]]
-      } yield {
-        AtomicComponent(
-          name,
-          params.getOrElse(Set.empty),
-          pre.getOrElse(Set.empty),
-          add.getOrElse(Set.empty),
-          rem.getOrElse(Set.empty))
-      }
-  }
-  implicit val decodeCompositeComponent: Decoder[CompositeComponent] = new Decoder[CompositeComponent] {
-    final def apply(c: HCursor): Decoder.Result[CompositeComponent] =
-      for {
-        name <- c.downField("name").as[Identifier]
-        params <- c.downField("params").as[Option[Set[Variable]]]
-        components <- c.downField("components").as[Seq[ComponentInstance]]
-      } yield {
-        CompositeComponent(
-          name,
-          params.getOrElse(Set.empty),
-          components)
-      }
-  }
+  implicit val decodeAtomicComponent: Decoder[AtomicComponent] =
+    new Decoder[AtomicComponent] {
+      final def apply(c: HCursor): Decoder.Result[AtomicComponent] =
+        for {
+          name   <- c.downField("name").as[Identifier]
+          params <- c.downField("params").as[Option[Set[Variable]]]
+          pre    <- c.downField("pre").as[Option[Set[Variable]]]
+          add    <- c.downField("add").as[Option[Set[Variable]]]
+          rem    <- c.downField("rem").as[Option[Set[Variable]]]
+        } yield {
+          AtomicComponent(name,
+                          params.getOrElse(Set.empty),
+                          pre.getOrElse(Set.empty),
+                          add.getOrElse(Set.empty),
+                          rem.getOrElse(Set.empty))
+        }
+    }
+  implicit val decodeCompositeComponent: Decoder[CompositeComponent] =
+    new Decoder[CompositeComponent] {
+      final def apply(c: HCursor): Decoder.Result[CompositeComponent] =
+        for {
+          name       <- c.downField("name").as[Identifier]
+          params     <- c.downField("params").as[Option[Set[Variable]]]
+          components <- c.downField("components").as[Seq[ComponentInstance]]
+        } yield {
+          CompositeComponent(name, params.getOrElse(Set.empty), components)
+        }
+    }
 }

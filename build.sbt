@@ -15,6 +15,7 @@ lazy val root = project.in(file(".")).aggregate(js, jvm)
 lazy val swsg = crossProject
   .in(file("."))
   .settings(
+    sourceDirectories in (Compile, scalafmt) += file("shared").getAbsoluteFile / "src" / "main" / "scala",
     scalaVersion := scalaVer,
     scalacOptions ++= Seq(
       "-unchecked",

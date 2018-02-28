@@ -45,10 +45,11 @@ case class ModelParser(input: ParserInput) extends Parser {
 
   // Service
   def Service = rule {
-    's' ~ Method ~ Path ~ ServiceParams ~ Ci ~> ((m,
-                                          u,
-                                          p,
-                                          c) => Model.Service(m, u, p.toSet, c))
+    's' ~ Method ~ Path ~ ServiceParams ~ Ci ~> (
+        (m,
+         u,
+         p,
+         c) => Model.Service(m, u, p.toSet, c))
   }
   def Method: Rule1[String] = rule {
     LineSeparator ~ Indentation ~ "method" ~ WhitespaceSeparator ~ capture(
@@ -63,8 +64,9 @@ case class ModelParser(input: ParserInput) extends Parser {
   }
   def ServiceParameter: Rule1[Model.ServiceParameter] = rule {
     LineSeparator ~ Indentation ~ "param" ~ WhitespaceSeparator ~ (ParameterLocation ~ WhitespaceSeparator ~ Variable) ~> (
-      (location: Model.ParameterLocation, variable: Model.Variable) =>
-        Model.ServiceParameter(location, variable))
+        (location: Model.ParameterLocation,
+         variable: Model.Variable) =>
+          Model.ServiceParameter(location, variable))
   }
   val validLocations: Map[String, Model.ParameterLocation] = Map(
     "query"  -> Model.Query,
@@ -74,7 +76,8 @@ case class ModelParser(input: ParserInput) extends Parser {
     "body"   -> Model.Body,
   )
   def ParameterLocation: Rule1[Model.ParameterLocation] = rule {
-    capture(atomic("query") | atomic("header") | atomic("path") | atomic("cookie") | atomic("body")) ~> ((location: String) =>
+    capture(atomic("query") | atomic("header") | atomic("path") | atomic(
+      "cookie") | atomic("body")) ~> ((location: String) =>
       validLocations.get(location).get)
   }
   def Ci: Rule1[Model.ComponentInstance] = rule {
@@ -147,8 +150,7 @@ case class ModelParser(input: ParserInput) extends Parser {
     "DateTime" -> Model.DateTime
   )
   def ScalarType: Rule1[Model.Type] = rule {
-    Identifier ~> ((n: String) =>
-      validTypes.getOrElse(n, Model.EntityRef(n)))
+    Identifier ~> ((n: String) => validTypes.getOrElse(n, Model.EntityRef(n)))
   }
   def SeqOf: Rule1[Model.Type] = rule {
     "Seq(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.SeqOf(t))
@@ -208,10 +210,12 @@ case class ModelParser(input: ParserInput) extends Parser {
   def LinesSeparator      = rule { oneOrMore(LineSeparator) }
   def ParameterSeparator  = rule { zeroOrMore(' ') ~ ',' ~ zeroOrMore(' ') }
   def Indentation         = WhitespaceSeparator
-  def Comment             = rule { optional('\n') ~
-                                   optional(WhitespaceSeparator) ~
-                                   "//" ~
-                                   zeroOrMore(CharPredicate.All -- '\n') }
+  def Comment = rule {
+    optional('\n') ~
+      optional(WhitespaceSeparator) ~
+      "//" ~
+      zeroOrMore(CharPredicate.All -- '\n')
+  }
 }
 
 object ModelParser {
