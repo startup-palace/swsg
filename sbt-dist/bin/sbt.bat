@@ -53,7 +53,7 @@ rem We use the value of the JAVA_OPTS environment variable if defined, rather th
 set _JAVA_OPTS=%JAVA_OPTS%
 if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 
-set INIT_SBT_VERSION=1.1.0
+set INIT_SBT_VERSION=1.1.1
 
 :args_loop
 if "%~1" == "" goto args_end
@@ -129,7 +129,7 @@ exit /B 1
 
 :copyrt
 if /I "%JAVA_VERSION%" GEQ "9" (
-  set rtexport=%SBT_HOME%java9-rt-export.jar
+  set rtexport=!SBT_HOME!java9-rt-export.jar
 
   "%_JAVACMD%" %_JAVA_OPTS% %SBT_OPTS% -jar "!rtexport!" --rt-ext-dir > "%TEMP%.\rtext.txt"
   set /p java9_ext= < "%TEMP%.\rtext.txt"
