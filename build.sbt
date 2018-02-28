@@ -29,8 +29,8 @@ lazy val swsg = crossProject
     scalacOptions in (Compile, console) ~= (_ filterNot (_ == "-Xfatal-warnings")),
     scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value,
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.0.4" % Test,
-      "com.chuusai"   %%% "shapeless" % "2.3.2",
+      "org.scalatest" %%% "scalatest" % "3.0.5" % Test,
+      "com.chuusai"   %%% "shapeless" % "2.3.3",
       "org.parboiled" %%% "parboiled" % "2.1.4"
     ),
     libraryDependencies ++= Seq(
