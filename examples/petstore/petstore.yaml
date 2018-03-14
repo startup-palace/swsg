@@ -106,7 +106,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
-        component: AddPet
+        component: AddOrEditPet
+        bindings:
+          - param:
+              name: addOnly
+              type: Boolean
+            argument:
+              type: Boolean
+              value: true
   '/pets/{id}':
     get:
       description: >-
@@ -136,6 +143,47 @@ paths:
                 $ref: '#/components/schemas/Error'
       x-swsg-ci:
         component: FindPet
+    put:
+      description: Edit a pet based on its ID
+      operationId: edit pet by id
+      parameters:
+        - name: id
+          in: path
+          description: ID of pet to edit
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: New pet info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+        x-swsg-name: newPet
+      responses:
+        '200':
+          description: pet response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      x-swsg-ci:
+        component: AddOrEditPet
+        bindings:
+          - param:
+              name: addOnly
+              type: Boolean
+            argument:
+              type: Boolean
+              value: false
     delete:
       description: deletes a single pet based on the ID supplied
       operationId: deletePet
@@ -200,9 +248,19 @@ components:
           aliases:
             - source: pets
               target: limitedPets
-    - name: AddPet
+    - name: AddOrEditPet
+      params:
+        - name: addOnly
+          type: Boolean
       components:
-        - component: CreatePet
+        - component: CreateOrUpdatePet
+          bindings:
+            - param:
+                name: createOnly
+                type: Boolean
+              argument:
+                name: addOnly
+                type: Boolean
         - component: RenderPet
     - name: FindPet
       components:
@@ -260,6 +318,21 @@ components:
         - name: newPet
           type:
             entity: NewPet
+      add:
+        - name: pet
+          type:
+            entity: Pet
+    - name: CreateOrUpdatePet
+      params:
+        - name: createOnly
+          type: Boolean
+      pre:
+        - name: newPet
+          type:
+            entity: NewPet
+        - name: id
+          type:
+            optionOf: Integer
       add:
         - name: pet
           type:
