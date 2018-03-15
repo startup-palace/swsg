@@ -44,13 +44,37 @@ final case object ContextValidity extends Verification {
     sequence.flatMap { componentWithContext =>
       val inconsistencies =
         componentWithContext.component.pre
-          .filterNot(componentWithContext.contextIn.contains)
+          .filterNot(containsCompatibleVariable(componentWithContext.contextIn))
       inconsistencies.toSeq.map(
         i =>
           ComponentPreconditionError(
             service.name,
             componentWithContext.parents :+ componentWithContext.component.name,
             i))
+    }
+  }
+
+  private def containsCompatibleVariable(context: Set[Variable])(
+      variable: Variable): Boolean = {
+    def removeOptional(t: Type): Type = t match {
+      case OptionOf(st) => st
+      case _            => t
+    }
+
+    def isOptional(t: Type): Boolean = t match {
+      case OptionOf(_) => true
+      case _           => false
+    }
+
+    if (isOptional(variable.`type`)) {
+      val sameName = context.filter(_.name == variable.name)
+      val candidates = sameName.filter(
+        ctxVar =>
+          ctxVar.`type` == variable.`type` || ctxVar.`type` == removeOptional(
+            variable.`type`))
+      sameName.isEmpty || !candidates.isEmpty
+    } else {
+      context.contains(variable)
     }
   }
 
