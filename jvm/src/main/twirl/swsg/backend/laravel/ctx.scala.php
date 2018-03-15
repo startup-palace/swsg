@@ -35,10 +35,14 @@ class Ctx
         return $this;
     }
 
-    public function get(string $name)
+    public function get(string $name, bool $optional=false)
     {
         if (!$this->has($name)) {
-            throw new \Exception("Variable '$name' does not exist in context!");
+            if ($optional) {
+                return null;
+            } else {
+                throw new \Exception("Variable '$name' does not exist in context!");
+            }
         }
 
         return $this->context[$name];
