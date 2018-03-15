@@ -123,7 +123,15 @@ final case object ModelDecoderInstances {
   }
 
   implicit val decodeAny: Decoder[Any] = new Decoder[Any] {
-    final def apply(c: HCursor): Decoder.Result[Any] = c.as[String]
+    final def apply(c: HCursor): Decoder.Result[Any] = {
+      c.focus match {
+        case Some(v) => Right(v)
+        case None =>
+          Left(
+            io.circe.DecodingFailure(s"Couldn't read this 'Any' value",
+                                     c.history))
+      }
+    }
   }
 
   implicit val decodeVariable: Decoder[Variable] = deriveDecoder
