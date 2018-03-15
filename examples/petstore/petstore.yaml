@@ -313,15 +313,6 @@ components:
         - name: pet
           type:
             entity: Pet
-    - name: CreatePet
-      pre:
-        - name: newPet
-          type:
-            entity: NewPet
-      add:
-        - name: pet
-          type:
-            entity: Pet
     - name: CreateOrUpdatePet
       params:
         - name: createOnly
