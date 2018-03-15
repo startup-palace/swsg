@@ -4,9 +4,26 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 
 object Main {
   @JSExportTopLevel("swsg.parse")
-  def parse(input: String): Model = ModelParser.parse(input) match {
-    case Left(e)  => throw new RuntimeException(e)
-    case Right(m) => m
+  def parse(input: String): Model = {
+    import io.circe.parser.{parse => parseJson}
+
+    val parsedModel = parseJson(input) match {
+      case Right(_) =>
+        val model = OpenApiConverter
+          .fromJson(input)
+          .left
+          .map(_.map(_.toString))
+          .flatMap(OpenApiConverter.toModel)
+          .left
+          .map(_.mkString("\n"))
+        ("OpenAPI Json", model)
+      case Left(_) => ("Custom syntax", ModelParser.parse(input))
+    }
+
+    parsedModel._2 match {
+      case Left(e)  => throw new RuntimeException(e)
+      case Right(m) => m
+    }
   }
 
   @JSExportTopLevel("swsg.modelToJson")
