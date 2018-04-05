@@ -12,7 +12,7 @@ declare -a scalac_args
 declare -a sbt_commands
 declare java_cmd=java
 declare java_version
-declare init_sbt_version="1.1.1"
+declare init_sbt_version="1.1.2"
 
 declare SCRIPT=$0
 while [ -h "$SCRIPT" ] ; do
@@ -106,12 +106,12 @@ get_mem_opts () {
     (( $codecache > 128 )) || codecache=128
     (( $codecache < 512 )) || codecache=512
     local class_metadata_size=$(( $codecache * 2 ))
-    local class_metadata_opt=$([[ "$java_version" < "1.8" ]] && echo "MaxPermSize" || echo "MaxMetaspaceSize")
+    local class_metadata_opt=$([[ "$java_version" < "8" ]] && echo "MaxPermSize" || echo "MaxMetaspaceSize")
 
     local arg_xms=$([[ "${java_args[@]}" == *-Xms* ]] && echo "" || echo "-Xms${mem}m")
     local arg_xmx=$([[ "${java_args[@]}" == *-Xmx* ]] && echo "" || echo "-Xmx${mem}m")
     local arg_rccs=$([[ "${java_args[@]}" == *-XX:ReservedCodeCacheSize* ]] && echo "" || echo "-XX:ReservedCodeCacheSize=${codecache}m")
-    local arg_meta=$([[ "${java_args[@]}" == *-XX:${class_metadata_opt}* && ! "$java_version" < "1.8" ]] && echo "" || echo "-XX:${class_metadata_opt}=${class_metadata_size}m")
+    local arg_meta=$([[ "${java_args[@]}" == *-XX:${class_metadata_opt}* && ! "$java_version" < "8" ]] && echo "" || echo "-XX:${class_metadata_opt}=${class_metadata_size}m")
 
     echo "${arg_xms} ${arg_xmx} ${arg_rccs} ${arg_meta}"
   fi
@@ -144,6 +144,32 @@ require_arg () {
 
 is_function_defined() {
   declare -f "$1" > /dev/null
+}
+
+# parses JDK version from the -version output line.
+# 8 for 1.8.0_nn, 9 for 9-ea etc, and "no_java" for undetected
+jdk_version() {
+  local result
+  local lines=$("$java_cmd" -Xms32M -Xmx32M -version 2>&1 | tr '\r' '\n')
+  local IFS=$'\n'
+  for line in $lines; do
+    if [[ (-z $result) && ($line = *"version \""*) ]]
+    then
+      local ver=$(echo $line | sed -e 's/.*version "\(.*\)"\(.*\)/\1/; 1q')
+      # on macOS sed doesn't support '?'
+      if [[ $ver = "1."* ]]
+      then
+        result=$(echo $ver | sed -e 's/1\.\([0-9]*\)\(.*\)/\1/; 1q')
+      else
+        result=$(echo $ver | sed -e 's/\([0-9]*\)\(.*\)/\1/; 1q')
+      fi
+    fi
+  done
+  if [[ -z $result ]]
+  then
+    result=no_java
+  fi
+  echo "$result"
 }
 
 process_args () {
@@ -179,14 +205,7 @@ process_args () {
     process_my_args "${myargs[@]}"
   }
 
-  ## parses java version from the -version output line, e.g.:
-  ## java version "10-ea" 2018-03-20 --> 10
-  ## openjdk version "9"             --> 9
-  ## java version "1.8.0_162"        --> 1.8
-  ## openjdk version "1.8.0_144"     --> 1.8
-  ## java version "1.7.0_151"        --> 1.7
-  ## java version "1.6.0_45"         --> 1.6
-  java_version=$("$java_cmd" -Xms128M -Xmx512M -version 2>&1 | tr '\r' '\n' | grep ' version "' | sed 's/.*version "\([0-9]*\)\(\.[0-9]*\)\{0,1\}\(.*\)*/\1\2/; 1q')
+  java_version="$(jdk_version)"
   vlog "[process_args] java_version = '$java_version'"
 }
 
@@ -234,8 +253,9 @@ copyRt() {
   local at_least_9="$(expr $java_version ">=" 9)"
   if [[ "$at_least_9" == "1" ]]; then
     rtexport=$(rt_export_file)
+    # The grep for java9-rt-ext- matches the filename prefix printed in Export.java
     java9_ext=$("$java_cmd" ${JAVA_OPTS} ${SBT_OPTS:-$default_sbt_opts} ${java_args[@]} \
-      -jar "$rtexport" --rt-ext-dir | grep -v Listening)
+      -jar "$rtexport" --rt-ext-dir | grep java9-rt-ext-)
     java9_rt=$(echo "$java9_ext/rt.jar")
     vlog "[copyRt] java9_rt = '$java9_rt'"
     if [[ ! -f "$java9_rt" ]]; then
@@ -268,7 +288,7 @@ run() {
   argumentCount=$#
 
   # TODO - java check should be configurable...
-  checkJava "1.6"
+  checkJava "6"
 
   # Java 9 support
   copyRt

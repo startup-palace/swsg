@@ -35,9 +35,11 @@ IF DEFINED JAVA_HOME SET "PATH=%JAVA_HOME%\bin;%PATH%"
 
 rem users can set JAVA_OPTS via .jvmopts (sbt-extras style)
 IF EXIST .jvmopts FOR /F %%A IN (.jvmopts) DO (
-  SET JAVA_OPTS=%%A !JAVA_OPTS!
+  SET _jvmopts_line=%%A
+  IF NOT "!_jvmopts_line:~0,1!"=="#" (
+    SET JAVA_OPTS=%%A !JAVA_OPTS!
+  )
 )
-
 rem We use the value of the JAVACMD environment variable if defined
 set _JAVACMD=%JAVACMD%
 
@@ -53,7 +55,7 @@ rem We use the value of the JAVA_OPTS environment variable if defined, rather th
 set _JAVA_OPTS=%JAVA_OPTS%
 if "%_JAVA_OPTS%"=="" set _JAVA_OPTS=%CFG_OPTS%
 
-set INIT_SBT_VERSION=1.1.1
+set INIT_SBT_VERSION=1.1.2
 
 :args_loop
 if "%~1" == "" goto args_end
@@ -164,7 +166,7 @@ if /I "%JAVA_VERSION%" GEQ "1.8" (
     REM echo %PRELOAD_SBT_JAR%
     if not exist %PRELOAD_SBT_JAR% (
       if exist "%SBT_HOME%\..\lib\local-preloaded\" (
-        echo 'about to robocopy'
+        echo "about to robocopy"
         robocopy "%SBT_HOME%\..\lib\local-preloaded" "%UserProfile%\.sbt\preloaded" /E
       )
     )
