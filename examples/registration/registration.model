@@ -50,10 +50,10 @@ ac
   pre (userKey: String)
 ac
   name FetchRegistrations
-  add (registrations: Seq(Registration))
+  add (registrations: SeqOf(Registration))
 ac
   name RegistrationsSerializer
-  pre (registrations: Seq(Registration))
+  pre (registrations: SeqOf(Registration))
 
 
 
@@ -62,28 +62,28 @@ ac
 
 e
   name Test
-  attributes (name: String, email: Option(Integer))
+  attributes (name: String, email: OptionOf(Integer))
 
 s
   method POST
   path /test/header
   param header p1: Str
-  param header p2: Option(Int)
+  param header p2: OptionOf(Int)
   ci Test
 
 s
   method GET
   path /test/path/{p1}/path/{p2}
   param path p1: Str
-  param path p2: Option(Int)
+  param path p2: OptionOf(Int)
   ci Test
 
 s
   method GET
   path /test/query
   param query p1: Str
-  param query p2: Seq(Int)
-  param query p3: Option(Int)
+  param query p2: SeqOf(Int)
+  param query p3: OptionOf(Int)
   ci Test
 
 s
@@ -101,7 +101,7 @@ s
 s
   method POST
   path /test/body/json/array
-  param body p1: Seq(Test)
+  param body p1: SeqOf(Test)
   ci Test
 
 ac

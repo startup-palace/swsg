@@ -153,10 +153,11 @@ case class ModelParser(input: ParserInput) extends Parser {
     Identifier ~> ((n: String) => validTypes.getOrElse(n, Model.EntityRef(n)))
   }
   def SeqOf: Rule1[Model.Type] = rule {
-    "Seq(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.SeqOf(t))
+    ("SeqOf" | "Seq") ~ "(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.SeqOf(t))
   }
   def OptionOf: Rule1[Model.Type] = rule {
-    "Option(" ~ Type ~ ")" ~> ((t: Model.Type) => Model.OptionOf(t))
+    ("OptionOf" | "Option") ~ "(" ~ Type ~ ")" ~> ((t: Model.Type) =>
+      Model.OptionOf(t))
   }
   def Variable: Rule1[Model.Variable] = rule {
     (VariableName ~ optional(WhitespaceSeparator) ~ ':' ~ optional(
