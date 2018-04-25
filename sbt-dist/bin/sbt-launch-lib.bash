@@ -12,7 +12,7 @@ declare -a scalac_args
 declare -a sbt_commands
 declare java_cmd=java
 declare java_version
-declare init_sbt_version="1.1.2"
+declare init_sbt_version="1.1.4"
 
 declare SCRIPT=$0
 while [ -h "$SCRIPT" ] ; do
@@ -106,19 +106,19 @@ get_mem_opts () {
     (( $codecache > 128 )) || codecache=128
     (( $codecache < 512 )) || codecache=512
     local class_metadata_size=$(( $codecache * 2 ))
-    local class_metadata_opt=$([[ "$java_version" < "8" ]] && echo "MaxPermSize" || echo "MaxMetaspaceSize")
+    local class_metadata_opt=$((( $java_version < 8 )) && echo "MaxPermSize" || echo "MaxMetaspaceSize")
 
     local arg_xms=$([[ "${java_args[@]}" == *-Xms* ]] && echo "" || echo "-Xms${mem}m")
     local arg_xmx=$([[ "${java_args[@]}" == *-Xmx* ]] && echo "" || echo "-Xmx${mem}m")
     local arg_rccs=$([[ "${java_args[@]}" == *-XX:ReservedCodeCacheSize* ]] && echo "" || echo "-XX:ReservedCodeCacheSize=${codecache}m")
-    local arg_meta=$([[ "${java_args[@]}" == *-XX:${class_metadata_opt}* && ! "$java_version" < "8" ]] && echo "" || echo "-XX:${class_metadata_opt}=${class_metadata_size}m")
+    local arg_meta=$([[ "${java_args[@]}" == *-XX:${class_metadata_opt}* && ! (( $java_version < 8 )) ]] && echo "" || echo "-XX:${class_metadata_opt}=${class_metadata_size}m")
 
     echo "${arg_xms} ${arg_xmx} ${arg_rccs} ${arg_meta}"
   fi
 }
 
 get_gc_opts () {
-  local older_than_9="$(expr $java_version "<" 9)"
+  local older_than_9=$(( $java_version < 9 ))
 
   if [[ "$older_than_9" == "1" ]]; then
     # don't need to worry about gc
@@ -177,7 +177,7 @@ process_args () {
     case "$1" in
        -h|-help) usage; exit 1 ;;
     -v|-verbose) verbose=1 && shift ;;
-      -d|-debug) debug=1 && shift ;;
+      -d|-debug) debug=1 && addSbt "-debug" && shift ;;
 
            -ivy) require_arg path "$1" "$2" && addJava "-Dsbt.ivy.home=$2" && shift 2 ;;
            -mem) require_arg integer "$1" "$2" && sbt_mem="$2" && shift 2 ;;
