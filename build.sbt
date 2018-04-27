@@ -1,6 +1,6 @@
 name := "SWSG"
 
-lazy val scalaVer = "2.12.4"
+lazy val scalaVer = "2.12.6"
 
 scalaVersion := scalaVer
 
