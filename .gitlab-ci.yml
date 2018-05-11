@@ -4,7 +4,7 @@ variables:
   COURSIER_VERSION: 1.0.3
   SCALA_VERSION: "2.12"
   JAR_NAME: "swsg"
-  NODE_VERSION: "9"
+  NODE_VERSION: "10"
 
 stages:
   - build
