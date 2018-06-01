@@ -1,3 +1,5 @@
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+
 name := "SWSG"
 
 lazy val scalaVer = "2.12.6"
@@ -10,9 +12,7 @@ lazy val circeVersion = "0.9.3"
 
 lazy val catsVersion = "1.0.1"
 
-lazy val root = project.in(file(".")).aggregate(js, jvm)
-
-lazy val swsg = crossProject
+lazy val swsg = crossProject(JSPlatform, JVMPlatform)
   .in(file("."))
   .settings(
     sourceDirectories in (Compile, scalafmt) += file("shared").getAbsoluteFile / "src" / "main" / "scala",
@@ -60,7 +60,7 @@ lazy val swsg = crossProject
   )
   .jvmSettings(
     libraryDependencies ++= Seq(
-      "com.github.pathikrit" %% "better-files"  % "3.4.0",
+      "com.github.pathikrit" %% "better-files"  % "3.5.0",
       "com.github.scopt"     %% "scopt"         % "3.7.0",
       "org.scala-js"         %% "scalajs-stubs" % scalaJSVersion % "provided"
     ),
