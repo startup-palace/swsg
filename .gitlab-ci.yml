@@ -12,7 +12,7 @@ stages:
   - test_examples
 
 .scala-job: &scala
-  image: hseeberger/scala-sbt:8u171_2.12.6_1.1.5
+  image: hseeberger/scala-sbt:8u171_2.12.6_1.1.6
   before_script:
     - mkdir -p ~/.sbt/0.13/plugins
     - echo "addSbtPlugin(\"io.get-coursier\" % \"sbt-coursier\" % \"$COURSIER_VERSION\")" >> ~/.sbt/0.13/plugins/coursier.sbt
